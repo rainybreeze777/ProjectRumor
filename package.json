@@ -1,0 +1,18 @@
+{
+  "name": "ProjectRumor",
+  "version": "0.0.1",
+  "description": "Rumor has it that some guy started a project named ProjectRumor",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/electron/electron-quick-start",
+  "keywords": [
+    "Rumor"
+  ],
+  "author": "Siting Pan",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "electron": "~1.8.2"
+  }
+}
