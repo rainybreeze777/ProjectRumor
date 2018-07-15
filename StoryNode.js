@@ -5,7 +5,7 @@
  * the progressId i.e. the progress of player in this story line, and APIs to
  * retrieve the correct rumor texts
  */
-class StoryNode {
+export default class StoryNode {
 
   constructor(eventUid, progressId, nextIds, rumorTexts) {
     // if (new.target == StoryNode) {
