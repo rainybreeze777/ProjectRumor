@@ -28,4 +28,18 @@ class RumorCatalogue {
   addRumor(rumor) {
     this._allRumors.set(rumor.getEventUid(), rumor);
   }
+
+  /**
+   * Advance an event's progress
+   * @param {uuid} eventUid - the uuid of the event that needs to be advanced
+   * @param {number} [choice = -1] - The choice to advance this event point, if
+   *        required. Default is -1, and StoryNode will ignore this parameber;
+   *        however, passing -1 to a ChoiceNode indicates that an attempt to
+   *        advance ChoiceNode without supplying a choice is made, therefore
+   *        an error should be thrown
+   * @throws {Error} if choice is not provided for ChoiceNode
+   */
+  advanceEvent(eventUid, choice = -1) {
+    this._allRumors[eventUid].advance(choice);
+  }
 }

@@ -3,5 +3,14 @@
 // All of the Node.js APIs are available in this process.
 'use strict';
 
-import $ from "jquery";
+import $ from 'jquery';
 import StoryNode from './StoryNode.js';
+import RumorCatalogue from './RumorCatalogue.js';
+
+class Renderer {
+  main() {
+    let rumorCatalogue = new RumorCatalogue();
+  }
+}
+
+(new Renderer()).main();
