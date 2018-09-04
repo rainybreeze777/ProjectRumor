@@ -4,13 +4,15 @@
  * Class that represents the progress of a Story. It contains the event uid,
  * the progressId i.e. the progress of player in this story line, and APIs to
  * retrieve the correct rumor texts
+ * There should be a one-to-one mapping relationship between every story in the
+ * game plot and every StoryNode instance in the memory, since each StoryNode
+ * keeps a record of how far the player has progressed into this plot line.
  */
 export default class StoryNode {
   /**
    * @constructor
    */
-  constructor(rumorDataFatory, eventUid, progressId, nextIds, rumorTexts) {
-    this._dataFactory = rumorDataFatory;
+  constructor(eventUid, progressId, nextIds, rumorTexts) {
     this._eventUid = eventUid;
     this._progressId = progressId;
     this._nextIds = nextIds;
@@ -51,12 +53,23 @@ export default class StoryNode {
   }
 
   /**
-   * Advance this story. StoryNode will automatically update itself with correct
-   * texts
-   * @param {number} unused - unused stub param for overriding purposes
-   * @return {boolean} true if this storyline has reached the end
+   * Advance this story node
+   * @param {number} newProgressId
+   * @param {number/Array of numbers} newNextIds
+   * @param {string/Array of strings} newRumorTexts
    */
-  advance(unused) {
-    return this._dataFactory.advanceStory(this);
+  advance(newProgressId, newNextIds, newRumorTexts) {
+    this._progressId = newProgressId;
+    this._nextIds = newNextIds;
+    this._rumorTexts = newRumorTexts;
+    this._nodeType = typeof(this._nextIds) == 'number' ? 'StoryNode'
+                                                       : 'ChoiceNode';
   }
+
+  /**
+   * Testing method that returns the next Ids
+   */
+   getNextIds() {
+     return this._nextIds;
+   }
 }

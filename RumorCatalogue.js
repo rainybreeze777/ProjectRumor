@@ -5,17 +5,18 @@
  * throughout game progression. Provides a generic interface to return a list
  * of available rumors to spread when customers ask for rumors
  */
-class RumorCatalogue {
+export default class RumorCatalogue {
   /**
    * @constructor
    */
-  constructor() {
+  constructor(rumorDataFatory) {
+    this._dataFactory = rumorDataFatory;
     this._allRumors = new Map();
   }
 
   /**
    * A function to get list of all spreadable rumors
-   * @return {Map} Key: Event unique Id; Value: StoryNode / ChoiceNode
+   * @return {Map} Key: Event unique Id; Value: StoryNode
    */
   getSpreadableRumors() {
     return this._allRumors;
@@ -30,16 +31,25 @@ class RumorCatalogue {
   }
 
   /**
-   * Advance an event's progress
+   * Wrapper function to advance a story using eventUid
    * @param {uuid} eventUid - the uuid of the event that needs to be advanced
-   * @param {number} [choice = -1] - The choice to advance this event point, if
-   *        required. Default is -1, and StoryNode will ignore this parameber;
-   *        however, passing -1 to a ChoiceNode indicates that an attempt to
-   *        advance ChoiceNode without supplying a choice is made, therefore
-   *        an error should be thrown
-   * @throws {Error} if choice is not provided for ChoiceNode
+   * @param {number} choice - The choice to advance this event point.
    */
-  advanceEvent(eventUid, choice = -1) {
-    this._allRumors[eventUid].advance(choice);
+  advanceEvent(eventUid, choice) {
+    this._dataFactory.advanceEvent(this._allRumors.get(eventUid), choice);
   }
+
+  /**
+   * Method to quickly get the current rumor text for eventUid
+   */
+  getRumorText(eventUid) {
+    return this._allRumors.get(eventUid).getRumorText();
+  }
+
+  /**
+   * Temp method for testing
+   */
+   getNextIds(eventUid) {
+     return this._allRumors.get(eventUid).getNextIds();
+   }
 }
