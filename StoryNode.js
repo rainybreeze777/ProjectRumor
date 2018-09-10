@@ -1,5 +1,7 @@
 'use strict';
 
+import RumorChoice from './RumorChoice.js';
+
 /**
  * Class that represents the progress of a Story. It contains the event uid,
  * the progressId i.e. the progress of player in this story line, and APIs to
@@ -12,12 +14,11 @@ export default class StoryNode {
   /**
    * @constructor
    */
-  constructor(eventUid, progressId, nextIds, rumorTexts) {
+  constructor(eventUid, storyTitle, progressId, rumorChoices) {
     this._eventUid = eventUid;
+    this._storyTitle = storyTitle
     this._progressId = progressId;
-    this._nextIds = nextIds;
-    this._rumorTexts = rumorTexts;
-    this._nodeType = 'StoryNode';
+    this._rumorChoices = rumorChoices;
   }
 
   /**
@@ -37,39 +38,47 @@ export default class StoryNode {
   }
 
   /**
-   * Gets the type of this node
-   * @return {string}
+   * Gets the texts of this story at this progress
+   * @return {Js object} Key: Rumor Quality; Value: Rumor Text
    */
-  getType() {
-    return this._nodeType;
+  getRumorChoiceTexts() {
+    let texts = {};
+    for (let choice of this._rumorChoices) {
+      texts[choice.getQuality()] = choice.getRumorText();
+    }
+    return texts;
   }
 
   /**
-   * Gets the texts of this story at this progress
-   * @return {string}
+   * Gets the next progress point id, given a choice of rumor quality
+   * @param {number} quality - the rumor quality that was chosen
+   * @return {number} the nextId that links to the next event progress
+   * @throws {Error} if given quality is not found
    */
-  getRumorText() {
-    return this._rumorTexts;
+  getNextIdByQuality(quality) {
+    for (let choice of this._rumorChoices) {
+      if (choice.getQuality() == quality) {
+        return choice.getNextId();
+      }
+    }
+    throw new Error("Given rumor quality is not found!");
+  }
+
+  /**
+   * Gets the title of this story
+   * @return {string} the actual title text
+   */
+  getStoryTitle() {
+    return this._storyTitle;
   }
 
   /**
    * Advance this story node
    * @param {number} newProgressId
-   * @param {number/Array of numbers} newNextIds
-   * @param {string/Array of strings} newRumorTexts
+   * @param {Array of RumorChoice} newRumorChoices
    */
-  advance(newProgressId, newNextIds, newRumorTexts) {
+  advance(newProgressId, newRumorChoices) {
     this._progressId = newProgressId;
-    this._nextIds = newNextIds;
-    this._rumorTexts = newRumorTexts;
-    this._nodeType = typeof(this._nextIds) == 'number' ? 'StoryNode'
-                                                       : 'ChoiceNode';
+    this._rumorChoices = newRumorChoices;
   }
-
-  /**
-   * Testing method that returns the next Ids
-   */
-   getNextIds() {
-     return this._nextIds;
-   }
 }

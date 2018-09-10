@@ -11,23 +11,24 @@ export default class RumorCatalogue {
    */
   constructor(rumorDataFatory) {
     this._dataFactory = rumorDataFatory;
-    this._allRumors = new Map();
+    this._allEvents = new Map();
   }
 
   /**
    * A function to get list of all spreadable rumors
    * @return {Map} Key: Event unique Id; Value: StoryNode
    */
-  getSpreadableRumors() {
-    return this._allRumors;
+  getAllEvents() {
+    return this._allEvents;
   }
 
   /**
    * Adds a rumor to the Catalogue
-   * @param {StoryNode} rumor - The rumor to be added
+   * @param {number} eventUid - The uid of the rumor to be added
    */
-  addRumor(rumor) {
-    this._allRumors.set(rumor.getEventUid(), rumor);
+  addRumor(eventUid) {
+    this._allEvents.set(eventUid
+                        , this._dataFactory.instantiateStoryNode(eventUid));
   }
 
   /**
@@ -36,20 +37,13 @@ export default class RumorCatalogue {
    * @param {number} choice - The choice to advance this event point.
    */
   advanceEvent(eventUid, choice) {
-    this._dataFactory.advanceEvent(this._allRumors.get(eventUid), choice);
+    this._dataFactory.advanceEvent(this._allEvents.get(eventUid), choice);
   }
 
   /**
-   * Method to quickly get the current rumor text for eventUid
+   * Get all Choices as JS object
    */
-  getRumorText(eventUid) {
-    return this._allRumors.get(eventUid).getRumorText();
+  getSpreadableRumors(eventUid) {
+    return this._allEvents.get(eventUid).getRumorChoiceTexts();
   }
-
-  /**
-   * Temp method for testing
-   */
-   getNextIds(eventUid) {
-     return this._allRumors.get(eventUid).getNextIds();
-   }
 }

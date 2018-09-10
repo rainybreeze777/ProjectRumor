@@ -17,14 +17,15 @@ class Renderer {
 
   main() {
 
-    this._rumorCatalogue.addRumor(this._rumorEventFactory.createStoryNode(1));
+    this._rumorCatalogue.addRumor(1);
+    this._rumorCatalogue.addRumor(2);
 
     let eventsDisplay = $('.events');
     let selectedEvent = -1;
 
-    this._rumorCatalogue.getSpreadableRumors().forEach((storyNode, eventUid) => {
+    this._rumorCatalogue.getAllEvents().forEach((storyNode, eventUid) => {
       $('<li/>',{
-        text: eventUid,
+        text: storyNode.getStoryTitle(),
         click: () => {
           this._selectedEventUId = eventUid;
           this.displayRumor(eventUid);
@@ -39,14 +40,11 @@ class Renderer {
   }
 
   displayRumor(eventUid) {
-    $('.rumor_text').text(this._rumorCatalogue.getRumorText(eventUid));
-    let next = this._rumorCatalogue.getNextIds(eventUid);
-    let choices = $('.choices');
-    choices.empty();
-    if (typeof(next) == 'number') {
-      $('<li/>', { text: next }).appendTo('.choices');
-    } else {
-      // TODO: output a list of possible choices
+    let choicesObj = this._rumorCatalogue.getSpreadableRumors(eventUid);
+    let choicesDom = $('.choices');
+    choicesDom.empty();
+    for (let [rumorQuality, rumorText] of Object.entries(choicesObj)) {
+      $('<li/>', { text: rumorQuality + ': ' + rumorText }).appendTo(choicesDom);
     }
   }
 }
