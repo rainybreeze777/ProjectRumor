@@ -2,3 +2,4 @@ node_modules
 .ftpconfig
 .cache
 .ftpignore
+build/

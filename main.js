@@ -13,12 +13,18 @@ const url = require('url');
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
+const debug = require('electron-debug')({showDevTools: true, enabled: true});
+
 /**
  * Creates the main window
  */
 function createWindow() {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600});
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    icon: path.join(__dirname, 'assets/icons/64x64.png')
+  });
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format(
