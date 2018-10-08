@@ -6,12 +6,14 @@
 import $ from 'jquery';
 import RumorCatalogue from './RumorCatalogue.js';
 import RumorEventFactory from './RumorEventFactory.js';
+import DialogueFactory from './DialogueFactory.js';
 
 class Renderer {
 
   constructor() {
     this._rumorEventFactory = new RumorEventFactory();
     this._rumorCatalogue = new RumorCatalogue(this._rumorEventFactory);
+    this._dialogueFactory = new DialogueFactory();
     this._selectedEventUId = -1;
   }
 
@@ -37,6 +39,19 @@ class Renderer {
       this._rumorCatalogue.advanceEvent(this._selectedEventUId, $('.user_choose')[0].value);
       this.displayRumor(this._selectedEventUId);
     });
+
+    let eventUid = 1;
+    let conversationId = 0;
+    $('.action_listen_button').click(() => {
+      let nextDialogue = this._dialogueFactory.getNextDialogue();
+      if (nextDialogue == null) {
+        ++conversationId;
+        this._dialogueFactory.prepareStage(eventUid, conversationId);
+        nextDialogue = this._dialogueFactory.getNextDialogue();
+      }
+      $('.speaker').text(nextDialogue.speaker);
+      $('.dialogue').text(nextDialogue.text);
+    });
   }
 
   displayRumor(eventUid) {
@@ -47,6 +62,7 @@ class Renderer {
       $('<li/>', { text: rumorQuality + ': ' + rumorText }).appendTo(choicesDom);
     }
   }
+
 }
 
 (new Renderer()).main();

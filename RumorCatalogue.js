@@ -42,6 +42,7 @@ export default class RumorCatalogue {
 
   /**
    * Get all Choices as JS object
+   * @return {Js object} Key: Rumor Quality; Value: Rumor Text
    */
   getSpreadableRumors(eventUid) {
     return this._allEvents.get(eventUid).getRumorChoiceTexts();

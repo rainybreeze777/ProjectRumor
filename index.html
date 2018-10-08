@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <title>Project Rumor</title>
   </head>
   <body>
     <h1>Project Rumor</h1>
@@ -12,10 +12,18 @@
     <ul class="choices"></ul>
     <input class="user_choose" type="number" min="1"></input>
     <button type="button" class="advance_button">Advance</button>
+    <h2>Dialogue</h2>
+    <div>
+      <span class="speaker"></span>
+      <p class="dialogue"></p>
+    </div>
+    <h3>Actions</h3>
+    <div class="actions">
+      <button type="button" class="action_listen_button">Listen</button>
+    </div>
     <script>
       // You can also require other files to run in this process
       require('./renderer.js')
     </script>
-    <p class="text"></p>
   </body>
 </html>
