@@ -47,4 +47,13 @@ export default class RumorCatalogue {
   getSpreadableRumors(eventUid) {
     return this._allEvents.get(eventUid).getRumorChoiceTexts();
   }
+
+  /**
+   * Determine if the event exists in the RumorCatalogue yet
+   * @param {uuid} - the uuid of event in question
+   * @return {bool}
+   */
+  exists(eventUid) {
+    return this._allEvents.has(eventUid);
+  }
 }

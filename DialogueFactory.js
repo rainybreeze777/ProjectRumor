@@ -39,7 +39,8 @@ export default class DialogueFactory {
               },
               {
                 speaker: 2,
-                text: "好，虽然那老板挺可恶的，但我可不想住在有杀人犯的城里。"
+                text: "好，虽然那老板挺可恶的，但我可不想住在有杀人犯的城里。",
+                advanceRumorQuality: 0
               }
             ]
           },
@@ -62,7 +63,8 @@ export default class DialogueFactory {
               },
               {
                 speaker: 2,
-                text: "啧啧，世风日下。"
+                text: "啧啧，世风日下。",
+                advanceRumorQuality: 0
               }
             ]
           },
@@ -101,7 +103,8 @@ export default class DialogueFactory {
               },
               {
                 speaker: 1,
-                text: "就是就是！"
+                text: "就是就是！",
+                advanceRumorQuality: 0
               }
             ]
           }
