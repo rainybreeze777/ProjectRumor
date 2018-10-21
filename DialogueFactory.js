@@ -109,6 +109,145 @@ export default class DialogueFactory {
             ]
           }
         ]
+      },
+      {
+        eventUid: 2,
+        conversations: [
+          {
+            convId: 1,
+            dialogues: [
+              {
+                speaker: 1,
+                text: "给我沽一盅便宜的烧刀子，那杀千刀的不配喝好酒。我家乖孙捡回" +
+                      "来的宝贝可不是换给他买酒用的。"
+              },
+              {
+                actions: {
+                  "CHAT": 2,
+                  "SELL_GOODS": 3
+                }
+              }
+            ]
+          },
+          {
+            convId: 2,
+            dialogues: [
+              {
+                speaker: 1,
+                text: "你问什么宝贝？我可没说过我家乖孙捡到了一片亮闪闪的大金牌子" +
+                      "……快把我的酒给我。",
+                advanceRumorQuality: 0
+              },
+              {
+                actions: {
+                  "SELL_GOODS": 3
+                }
+              }
+            ]
+          },
+          {
+            convId: 3,
+            dialogues: [
+              {
+                speaker: 1,
+                text: "这还差不多，问东问西的……"
+              }
+            ]
+          },
+          {
+            convId: 4,
+            dialogues: [
+              {
+                speaker: 2,
+                text: "给老子来一坛上好的即墨老酒，再来一斤酱牛肉。……那帮没用的" +
+                      "家伙弄丢师祖的昆吾令，还得叫老子给他们擦屁股，呸。"
+              },
+              {
+                actions: {
+                  "CHAT": 5,
+                  "SELL_GOODS": 6
+                }
+              }
+            ]
+          },
+          {
+            convId: 5,
+            dialogues: [
+              {
+                speaker: 2,
+                text: "老子行不更名坐不改姓，太行山昆吾派第八代首座大弟子薛大方是也！"
+              },
+              {
+                speaker: 2,
+                text: "就你还想打探老子的消息？是你应该给老子提供消息才对吧？！"
+              },
+              {
+                progressId: 0,
+                actions: {
+                  "SELL_GOODS": 6,
+                  "SPREAD_RUMOR": {
+                    "0": 7
+                  }
+                }
+              }
+            ]
+          },
+          {
+            convId: 6,
+            dialogues: [
+              {
+                speaker: 2,
+                text: "磨磨唧唧的真他奶奶的慢！"
+              }
+            ]
+          },
+          {
+            convId: 7,
+            dialogues: [
+              {
+                speaker: 2,
+                text: "金子做的牌子，倒像是昆吾令……",
+              }
+            ]
+          },
+          {
+            convId: 8,
+            dialogues: [
+              {
+                speaker: 3,
+                text: "店家，最近可有听说关于杏花村西李家的消息？"
+              },
+              {
+                progressId: 1,
+                actions: {
+                  "NOTHING": 9,
+                  "SPREAD_RUMOR": {
+                    "0": 10,
+                    "1": 9
+                  }
+                }
+              }
+            ]
+          },
+          {
+            convId: 9,
+            dialogues: [
+              {
+                speaker: 3,
+                text: "是吗……多谢店家。"
+              }
+            ]
+          },
+          {
+            convId: 10,
+            dialogues: [
+              {
+                speaker: 4,
+                text: "昆吾派首座弟子薛大方？我知道了，多谢店家。"
+              }
+            ]
+          }
+        ]
       }
     ];
 
