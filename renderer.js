@@ -8,6 +8,7 @@ import RumorCatalogue from './RumorCatalogue.js';
 import RumorEventFactory from './RumorEventFactory.js';
 import DialogueFactory from './DialogueFactory.js';
 import InteractionManager from './InteractionManager.js';
+import ShopManager from './ShopManager.js';
 
 class Renderer {
 
@@ -17,6 +18,7 @@ class Renderer {
     this._dialogueFactory = new DialogueFactory();
     this._interactionManager = new InteractionManager(this._rumorCatalogue
                                                       , this._dialogueFactory);
+    this._shopManager = new ShopManager();
     this._selectedEventUId = -1;
     this._selectedEventConvId = 0;
   }
@@ -45,6 +47,11 @@ class Renderer {
     $('p.dialogue').click(() => {
       this.displayDialogue();
     });
+
+    this._shopManager.addObserver((data) => {
+      $('.gold').text(data["gold"]);
+    });
+    this._shopManager.startTicking();
   }
 
   displayRumor(eventUid) {

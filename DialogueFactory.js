@@ -151,6 +151,9 @@ export default class DialogueFactory {
               {
                 speaker: 1,
                 text: "这还差不多，问东问西的……"
+              },
+              {
+                waitForNextConv: 4
               }
             ]
           },
@@ -207,6 +210,9 @@ export default class DialogueFactory {
               {
                 speaker: 2,
                 text: "金子做的牌子，倒像是昆吾令……",
+              },
+              {
+                waitForNextConv: 8
               }
             ]
           },
@@ -235,6 +241,9 @@ export default class DialogueFactory {
               {
                 speaker: 3,
                 text: "是吗……多谢店家。"
+              },
+              {
+                advanceRumor: true
               }
             ]
           },
@@ -244,6 +253,9 @@ export default class DialogueFactory {
               {
                 speaker: 4,
                 text: "昆吾派首座弟子薛大方？我知道了，多谢店家。"
+              },
+              {
+                advanceRumor: true
               }
             ]
           }
