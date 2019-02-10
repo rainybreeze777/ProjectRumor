@@ -9,6 +9,7 @@ import RumorEventFactory from './RumorEventFactory.js';
 import DialogueFactory from './DialogueFactory.js';
 import InteractionManager from './InteractionManager.js';
 import ShopManager from './ShopManager.js';
+import EventTriggerManager from './EventTriggerManager.js';
 
 class Renderer {
 
@@ -18,7 +19,8 @@ class Renderer {
     this._dialogueFactory = new DialogueFactory();
     this._interactionManager = new InteractionManager(this._rumorCatalogue
                                                       , this._dialogueFactory);
-    this._shopManager = new ShopManager();
+    this._eventTriggerManager = new EventTriggerManager();
+    this._shopManager = new ShopManager(this._eventTriggerManager);
     this._selectedEventUId = -1;
     this._selectedEventConvId = 0;
   }
