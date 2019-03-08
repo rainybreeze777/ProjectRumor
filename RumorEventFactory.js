@@ -1,11 +1,9 @@
 'use strict';
 
 import StoryNode from './StoryNode.js';
-import RumorChoice from './RumorChoice.js';
 
 /**
- * Class that stores all rumors in the game, and is responsible for populating
- * and advancing StoryNodes.
+ * Class that stores all rumors in the game.
  * If the plot storage system in the future is implemented as a giant database,
  * this class should be changed to be a Database Access Object to read in data
  * Every StoryNode instance needs a reference to this object
@@ -113,85 +111,40 @@ export default class RumorEventFactory {
   }
 
   /**
-   * Advance an event's progress
-   * @param {StoryNode} nodeToAdvance - the story/choice node instance that
-   *        needs to be advanced
-   * @param {number} quality - The rumor quality that advances the story
-   * @return {bool} - true if the story is advanced, false if story is concluded
-   *         or eventUid is not found
+   * Get an event's data
+   * @param {number} eventUid - the event unique id to obtain evet data
+   * @param {number} targetId - the progressId to obtain event data
+   * @return {Js Object} - resulting event data
    * @throws {Error} if eventUid is not in the eventData, or
-   *         supplied choice is not found in the progression data
+   *         target id is not found in the progression data
    */
-  advanceEvent(nodeToAdvance, quality) {
-    let eventData = this._getEventData(nodeToAdvance.getEventUid());
-    if (eventData == null) {
-      throw new Error("EventUid not found in event data!");
+  getEvent(eventUid, targetId) {
+    let eventObject = this._experimentEvents[eventUid.toString()];
+    if (eventObject == null || eventObject == undefined) {
+      throw new Error("EventUid not found!");
     }
-    let targetId = nodeToAdvance.getNextIdByQuality(quality);
-    for (let eventProgressPoint of eventData) {
+    for (let eventProgressPoint of eventObject["eventData"]) {
       if (eventProgressPoint["progressId"] == targetId) {
-        nodeToAdvance.advance(eventProgressPoint["progressId"]
-                              , this._buildChoicesList(eventProgressPoint));
-
-        return true;
+        return eventProgressPoint;
       }
     }
 
-    throw new Error("Supplied Choice is not found in this story!");
+    throw new Error("Target Id is not found in this story!");
     return false;
   }
 
   /**
-   * Function to create a new StoryNode instance with given event
-   * @param {number} eventUid - the event uid of desired story
-   * @return {StoryNode} - the new instance of StoryNode
-   * @throws {Error} if eventUid is not found in the eventData
+   * Get the title of event
+   * @param {number} eventUid - the event unique id to obtain title
+   * @return {string} - resulting event title
+   * @throws {Error} if eventUid is not in the eventData
    */
-  instantiateStoryNode(eventUid) {
-    const startId = 0;
-    let eventData = this._getEventData(eventUid);
-    if (eventData == null) {
-      throw new Error("EventUid not found in experiment events!");
+  getEventTitle(eventUid)
+  {
+    let eventObject = this._experimentEvents[eventUid.toString()]
+    if (eventObject == null || eventObject == undefined) {
+      throw new Error("EventUid not found!");
     }
-
-    for (let eventProgressPoint of eventData) {
-      if (eventProgressPoint["progressId"] == startId) {
-        return new StoryNode(eventUid
-                             , this._experimentEvents[eventUid.toString()]["title"]
-                             , startId
-                             , this._buildChoicesList(eventProgressPoint));
-      }
-    }
+    return eventObject["title"];
   }
-
-//==============================================================================
-// Private Methods
-//==============================================================================
-
-  /**
-   * Gets the event data from event uid
-   * @param {number} eventUid
-   * @return {Array of JS object}
-   */
-  _getEventData(eventUid) {
-    return this._experimentEvents[eventUid.toString()]["eventData"];
-  }
-
-  /**
-   * Instantiates and builds a list of RumorChoices, given the event progression
-   * point
-   * @param {JS object} eventProgressPoint - the obj that contains info about
-   *        the progress point of a story
-   * @return {Array of RumorChoice}
-   */
-  _buildChoicesList(eventProgressPoint) {
-    let rumorChoices = [];
-    for (let rawChoice of eventProgressPoint["waysToDescribe"]) {
-      rumorChoices.push(new RumorChoice(rawChoice["rumorQuality"]
-                                        , rawChoice["nextId"]
-                                        , rawChoice["rumorText"]));
-    }
-    return rumorChoices;
-  }
-
 }

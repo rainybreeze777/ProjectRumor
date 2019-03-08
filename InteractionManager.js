@@ -50,13 +50,9 @@ export default class InteractionManager {
         }
       }
 
-    } else if (nextLine.advanceRumorQuality != undefined) {
-      if (!this._rumorCatalogue.exists(this._focusEventUid)) {
-        this._rumorCatalogue.addRumor(this._focusEventUid);
-      } else {
-        this._rumorCatalogue.advanceEvent(this._focusEventUid
-                                          , nextLine.advanceRumorQuality);
-      }
+    } else if (nextLine.advanceRumorProgressId != undefined) {
+      this._rumorCatalogue.advanceEvent(this._focusEventUid
+                                        , nextLine.advanceRumorProgressId);
       for (let rumorCallback of this._rumorChangeCallbacks) {
         rumorCallback();
       }

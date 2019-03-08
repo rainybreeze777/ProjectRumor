@@ -1,5 +1,7 @@
 'use strict';
 
+import StoryNode from './StoryNode.js';
+
 /**
  * Class that holds the generally available rumors players have obtained
  * throughout game progression. Provides a generic interface to return a list
@@ -23,29 +25,23 @@ export default class RumorCatalogue {
   }
 
   /**
-   * Adds a rumor to the Catalogue
-   * @param {number} eventUid - The uid of the rumor to be added
-   */
-  addRumor(eventUid) {
-    this._allEvents.set(eventUid
-                        , this._dataFactory.instantiateStoryNode(eventUid));
-  }
-
-  /**
    * Wrapper function to advance a story using eventUid
    * @param {uuid} eventUid - the uuid of the event that needs to be advanced
-   * @param {number} choice - The choice to advance this event point.
+   * @param {number} targetId - The target id to advance rumor to
    */
-  advanceEvent(eventUid, choice) {
-    this._dataFactory.advanceEvent(this._allEvents.get(eventUid), choice);
-  }
-
-  /**
-   * Get all Choices as JS object
-   * @return {Js object} Key: Rumor Quality; Value: Rumor Text
-   */
-  getSpreadableRumors(eventUid) {
-    return this._allEvents.get(eventUid).getRumorChoiceTexts();
+  advanceEvent(eventUid, targetId) {
+    let eventData = this._dataFactory.getEvent(eventUid, targetId);
+    let eventTitle = this._dataFactory.getEventTitle(eventUid);
+    let rumorChoices = {};
+    for (let rumor of eventData["waysToDescribe"]) {
+      rumorChoices[rumor["rumorQuality"]] = rumor["rumorText"];
+    }
+    this._allEvents[eventUid]
+      = new StoryNode(
+              eventUid
+              , eventTitle
+              , eventData["progressId"]
+              , rumorChoices);
   }
 
   /**

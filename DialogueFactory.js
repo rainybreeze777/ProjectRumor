@@ -16,12 +16,14 @@ export default class DialogueFactory {
     // event system in the future.
     // the top level keys are event IDs, it must match that of the event
     // as listed in RumorEventFactory
+    // prereq structure { EventUid : info Js Object }
     this._experimentDialogue = [
       {
         eventUid: 1,
         conversations: [
           {
             convId: 1,
+            type: "trigger",
             dialogues: [
               {
                 speaker: 1,
@@ -40,12 +42,14 @@ export default class DialogueFactory {
               {
                 speaker: 2,
                 text: "好，虽然那老板挺可恶的，但我可不想住在有杀人犯的城里。",
-                advanceRumorQuality: 0
+                advanceRumorProgressId: 0
               }
             ]
           },
           {
             convId: 2,
+            type: "trigger",
+            conditions: "1",
             dialogues: [
               {
                 speaker: 1,
@@ -64,12 +68,14 @@ export default class DialogueFactory {
               {
                 speaker: 2,
                 text: "啧啧，世风日下。",
-                advanceRumorQuality: 0
+                advanceRumorProgressId: 1
               }
             ]
           },
           {
             convId: 3,
+            type: "trigger",
+            conditions: "2",
             dialogues: [
               {
                 speaker: 1,
@@ -104,7 +110,7 @@ export default class DialogueFactory {
               {
                 speaker: 1,
                 text: "就是就是！",
-                advanceRumorQuality: 0
+                advanceRumorProgressId: 2
               }
             ]
           }
@@ -115,6 +121,7 @@ export default class DialogueFactory {
         conversations: [
           {
             convId: 1,
+            type: "trigger",
             dialogues: [
               {
                 speaker: 1,
@@ -122,43 +129,46 @@ export default class DialogueFactory {
                       "来的宝贝可不是换给他买酒用的。"
               },
               {
-                actions: {
-                  "CHAT": 2,
-                  "SELL_GOODS": 3
-                }
+                actions: [
+                  "CHAT",
+                  "SELL_GOODS"
+                ]
               }
             ]
           },
           {
             convId: 2,
+            type: "immediate",
+            conditions: "3",
             dialogues: [
               {
                 speaker: 1,
                 text: "你问什么宝贝？我可没说过我家乖孙捡到了一片亮闪闪的大金牌子" +
                       "……快把我的酒给我。",
-                advanceRumorQuality: 0
+                advanceRumorProgressId: 0
               },
               {
-                actions: {
-                  "SELL_GOODS": 3
-                }
+                actions: [
+                  "SELL_GOODS"
+                ]
               }
             ]
           },
           {
             convId: 3,
+            type: "immediate",
+            conditions: "4",
             dialogues: [
               {
                 speaker: 1,
                 text: "这还差不多，问东问西的……"
-              },
-              {
-                waitForNextConv: 4
               }
             ]
           },
           {
             convId: 4,
+            type: "trigger",
+            conditions: "5",
             dialogues: [
               {
                 speaker: 2,
@@ -166,15 +176,17 @@ export default class DialogueFactory {
                       "家伙弄丢师祖的昆吾令，还得叫老子给他们擦屁股，呸。"
               },
               {
-                actions: {
-                  "CHAT": 5,
-                  "SELL_GOODS": 6
-                }
+                actions: [
+                  "CHAT",
+                  "SELL_GOODS"
+                ]
               }
             ]
           },
           {
             convId: 5,
+            type: "immediate",
+            conditions: "6",
             dialogues: [
               {
                 speaker: 2,
@@ -185,18 +197,17 @@ export default class DialogueFactory {
                 text: "就你还想打探老子的消息？是你应该给老子提供消息才对吧？！"
               },
               {
-                progressId: 0,
-                actions: {
-                  "SELL_GOODS": 6,
-                  "SPREAD_RUMOR": {
-                    "0": 7
-                  }
-                }
+                actions: [
+                  "SELL_GOODS",
+                  "SPREAD_RUMOR"
+                ]
               }
             ]
           },
           {
             convId: 6,
+            type: "immediate",
+            conditions: "7",
             dialogues: [
               {
                 speaker: 2,
@@ -206,56 +217,105 @@ export default class DialogueFactory {
           },
           {
             convId: 7,
+            type: "immediate",
+            conditions: "8",
             dialogues: [
               {
                 speaker: 2,
                 text: "金子做的牌子，倒像是昆吾令……",
-              },
-              {
-                waitForNextConv: 8
+                advanceRumorProgressId: 1
               }
             ]
           },
           {
             convId: 8,
+            type: "trigger",
+            conditions: "9",
             dialogues: [
               {
                 speaker: 3,
                 text: "店家，最近可有听说关于杏花村西李家的消息？"
               },
               {
-                progressId: 1,
-                actions: {
-                  "NOTHING": 9,
-                  "SPREAD_RUMOR": {
-                    "0": 10,
-                    "1": 9
-                  }
-                }
+                actions: [
+                  "NOTHING",
+                  "SPREAD_RUMOR"
+                ]
               }
             ]
           },
           {
             convId: 9,
+            type: "immediate",
+            conditions: "10 | 11",
             dialogues: [
               {
                 speaker: 3,
                 text: "是吗……多谢店家。"
-              },
-              {
-                advanceRumor: true
               }
             ]
           },
           {
             convId: 10,
+            type: "immediate",
+            conditions: "12",
+            dialogues: [
+              {
+                speaker: 3,
+                text: "昆吾派首座弟子薛大方？我知道了，多谢店家。"
+              }
+            ]
+          },
+          {
+            convId: 11,
+            type: "trigger",
+            conditions: "13",
             dialogues: [
               {
                 speaker: 4,
-                text: "昆吾派首座弟子薛大方？我知道了，多谢店家。"
+                text: "哎呀听说了吗？隔壁杏花村老李家被杀得一干二净啊！"
               },
               {
-                advanceRumor: true
+                speaker: 5,
+                text: "是啊是啊！唉，你说，谁这么丧尽天良，硬是砍死了那一家人！"
+              },
+              {
+                speaker: 4,
+                text: "不知道啊……前几天有个刀客模样的人在到处打听李家，听说伤口" +
+                      "是剑伤！看样子是武林人士干的。"
+              },
+              {
+                speaker: 5,
+                text: "也不知道李家怎的就招惹上了那些恶霸。太惨了。",
+                advanceRumorProgressId: 3
+              }
+            ]
+          },
+          {
+            convId: 12,
+            type: "trigger",
+            conditions: "14",
+            dialogues: [
+              {
+                speaker: 4,
+                text: "哎呀听说了吗？隔壁杏花村老李家被杀得一干二净啊！"
+              },
+              {
+                speaker: 5,
+                text: "是啊是啊！不过官府已经发出通缉啦，凶手好像是那昆吾派首座" +
+                      "弟子薛大方呐！"
+              },
+              {
+                speaker: 4,
+                text: "你小子消息比我还灵啊！这回官府手脚倒是挺快的哈？"
+              },
+              {
+                speaker: 5,
+                text: "嘿，官府能干啥？还不是有人得到消息以后，再核对了一下死尸" +
+                      "上的剑伤，认定那薛大方就是凶手，直接上报了官府，官府这才" +
+                      "匆忙下通缉令。依我看，要不是正好有热心人士愿意管这事，这" +
+                      "八成又要成一桩悬案！",
+                advanceRumorProgressId: 2
               }
             ]
           }
@@ -302,6 +362,66 @@ export default class DialogueFactory {
     }
 
     return this._stagedDialogues[this._dialogueIndex++];
+  }
+
+  /**
+   *  @param {Js Array of Integers} fulfilledPrereqs - List of prereqs
+   *    that have been completed by the player
+   *  @param {Js Array of Integers} enabledEvents - List of eventUids
+   *    that player have encountered and initiated
+   *  @return {Js Array of Js Object}
+   *  {
+   *    eventUid : <an available eventUid>,
+   *    convId : <triggerable conversation id of the event>,
+   *     ...
+   *  }
+   */
+  getTriggerableEvents(fulfilledPrereqs, enabledEvents) {
+    const parse = require("jsep");
+
+    let triggerables = [];
+    for (let oneEvent of this._experimentDialogue) {
+      for (let oneConv of oneEvent["conversations"]) {
+        if (oneConv.type == "trigger") {
+          if (oneConv.conditions == undefined) {
+            if (!(enabledEvents.includes(oneEvent.eventUid))) {
+              triggerables.push({
+                eventUid : oneEvent.eventUid,
+                convId : oneConv.convId
+              });
+            }
+          } else if(this._deduceCondTree(parse(oneConv.conditions)
+                                         , fulfilledPrereqs)) {
+            triggerables.push({
+              eventUid : oneEvent.eventUid,
+              convId : oneConv.convId
+            });
+          }
+        }
+      }
+    }
+
+    return triggerables;
+  }
+
+  _deduceCondTree(treeNode, fulfilledPrereqs) {
+    if (treeNode.type == "Literal") {
+      return fulfilledPrereqs.includes(treeNode.value);
+    } else if (treeNode.type == "UnaryExpression" && treeNode.operator == "!") {
+      return !fulfilledPrereqs.includes(treeNode.argument.value);
+    } else if (treeNode.type == "LogicalExpression") {
+      if (treeNode.operator == "&&") {
+        return this._deduceCondTree(treeNode.left, fulfilledPrereqs)
+                && this._deduceCondTree(treeNode.right, fulfilledPrereqs);
+      } else if (treeNode.operator == "||") {
+        return this._deduceCondTree(treeNode.left, fulfilledPrereqs)
+                || this._deduceCondTree(treeNode.right, fulfilledPrereqs);
+      } else {
+        throw new Error("Unrecognized operator " + treeNode.operator);
+      }
+    } else {
+      throw new Error("Unrecognized condition tree type " + treeNode.type + " token " + treeNode.raw);
+    }
   }
 
 }

@@ -1,7 +1,5 @@
 'use strict';
 
-import RumorChoice from './RumorChoice.js';
-
 /**
  * Class that represents the progress of a Story. It contains the event uid,
  * the progressId i.e. the progress of player in this story line, and APIs to
@@ -13,6 +11,13 @@ import RumorChoice from './RumorChoice.js';
 export default class StoryNode {
   /**
    * @constructor
+   * @param {number} eventUid
+   * @param {string} storyTitle
+   * @param {number} progressId
+   * @param {Js object} rumorChoices -
+   * {
+   *    Rumor Quality (number) : Rumor Text (string)
+   * }
    */
   constructor(eventUid, storyTitle, progressId, rumorChoices) {
     this._eventUid = eventUid;
@@ -42,26 +47,7 @@ export default class StoryNode {
    * @return {Js object} Key: Rumor Quality; Value: Rumor Text
    */
   getRumorChoiceTexts() {
-    let texts = {};
-    for (let choice of this._rumorChoices) {
-      texts[choice.getQuality()] = choice.getRumorText();
-    }
-    return texts;
-  }
-
-  /**
-   * Gets the next progress point id, given a choice of rumor quality
-   * @param {number} quality - the rumor quality that was chosen
-   * @return {number} the nextId that links to the next event progress
-   * @throws {Error} if given quality is not found
-   */
-  getNextIdByQuality(quality) {
-    for (let choice of this._rumorChoices) {
-      if (choice.getQuality() == quality) {
-        return choice.getNextId();
-      }
-    }
-    throw new Error("Given rumor quality is not found!");
+    return this._rumorChoices;
   }
 
   /**
@@ -70,15 +56,5 @@ export default class StoryNode {
    */
   getStoryTitle() {
     return this._storyTitle;
-  }
-
-  /**
-   * Advance this story node
-   * @param {number} newProgressId
-   * @param {Array of RumorChoice} newRumorChoices
-   */
-  advance(newProgressId, newRumorChoices) {
-    this._progressId = newProgressId;
-    this._rumorChoices = newRumorChoices;
   }
 }
