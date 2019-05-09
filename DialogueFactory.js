@@ -247,7 +247,7 @@ export default class DialogueFactory {
           {
             convId: 9,
             type: "immediate",
-            conditions: "10 | 11",
+            conditions: "10 || 11",
             dialogues: [
               {
                 speaker: 3,
@@ -325,6 +325,7 @@ export default class DialogueFactory {
 
     this._stagedDialogues = null;
     this._dialogueIndex = -1;
+    this._parse = require("jsep");
   }
 
   /**
@@ -377,8 +378,6 @@ export default class DialogueFactory {
    *  }
    */
   getTriggerableEvents(fulfilledPrereqs, enabledEvents) {
-    const parse = require("jsep");
-
     let triggerables = [];
     for (let oneEvent of this._experimentDialogue) {
       for (let oneConv of oneEvent["conversations"]) {
@@ -390,7 +389,7 @@ export default class DialogueFactory {
                 convId : oneConv.convId
               });
             }
-          } else if(this._deduceCondTree(parse(oneConv.conditions)
+          } else if(this._deduceCondTree(this._parse(oneConv.conditions)
                                          , fulfilledPrereqs)) {
             triggerables.push({
               eventUid : oneEvent.eventUid,
@@ -402,6 +401,36 @@ export default class DialogueFactory {
     }
 
     return triggerables;
+  }
+
+  /**
+   *  @param {Js Array of Integers} fulfilledPrereqs - List of prereqs
+   *    that have been completed by the player
+   *  @param {Js Object} finishedConvs - A Js object that records eventUid and
+   *    finished conversations within event
+   *    {
+   *        eventUid: <integer>,
+   *        finishedConvIdList: [<integers>]
+   *    }
+   *  @return {Js Array of Integers} List of available immediate conversations
+   */
+  getImmediateResponse(fulfilledPrereqs, finishedConvs) {
+    let immediates = [];
+    let eventUid = finishedConvs.eventUid;
+
+    for (let oneEvent of this._experimentDialogue) {
+      if (oneEvent["eventUid"] != eventUid) { continue; }
+      for (let oneConv of oneEvent["conversations"]) {
+        if (oneConv.type == "immediate"
+            && !finishedConvs.finishedConvIdList.includes(oneConv.convId)
+            && this._deduceCondTree(this._parse(oneConv.conditions)
+                                    , fulfilledPrereqs)) {
+          immediates.push(oneConv.convId);
+        }
+      }
+    }
+
+    return immediates;
   }
 
   _deduceCondTree(treeNode, fulfilledPrereqs) {

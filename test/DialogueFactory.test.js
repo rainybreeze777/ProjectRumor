@@ -209,3 +209,29 @@ describe("Test get Triggerable events function", () => {
     expect(result).not.toContainEqual(shouldNotReturnEvent);
   });
 });
+
+describe("Test get Immediate conversations function", () => {
+  test("No Fulfilled prereqs", () => {
+    expect(factory.getImmediateResponse(
+                    [], { eventUid: 1, finishedConvIdList: [] }))
+    .toHaveLength(0);
+  });
+
+  test("One possible immediate", () => {
+    expect(factory.getImmediateResponse(
+                    [3], { eventUid: 2, finishedConvIdList: []}))
+    .toEqual([2]);
+  });
+
+  test("One possible immediate with finished conversations", () => {
+    expect(factory.getImmediateResponse(
+                    [3, 4], { eventUid: 2, finishedConvIdList: [2]}))
+    .toEqual([3]);
+  });
+
+  test("One possible immediate with complex conditions", () => {
+    expect(factory.getImmediateResponse(
+                    [9, 10], { eventUid: 2, finishedConvIdList: []}))
+    .toEqual([9]);
+  });
+});
