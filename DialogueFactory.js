@@ -19,7 +19,7 @@ export default class DialogueFactory {
     // prereq structure { EventUid : info Js Object }
     this._experimentDialogue = [
       {
-        eventUid: 1,
+        eventUid: "1",
         conversations: [
           {
             convId: 1,
@@ -117,7 +117,7 @@ export default class DialogueFactory {
         ]
       },
       {
-        eventUid: 2,
+        eventUid: "2",
         conversations: [
           {
             convId: 1,
@@ -368,8 +368,12 @@ export default class DialogueFactory {
   /**
    *  @param {Js Array of Integers} fulfilledPrereqs - List of prereqs
    *    that have been completed by the player
-   *  @param {Js Array of Integers} enabledEvents - List of eventUids
-   *    that player have encountered and initiated
+   *  @param {Js Objects} finishedEventConvs - Js object that records eventUid
+   *    and finished conversations within event
+   *      {
+   *        eventUid <Uid String> : [<finished convId integers>]
+   *        ...
+   *      }
    *  @return {Js Array of Js Object}
    *  {
    *    eventUid : <an available eventUid>,
@@ -377,25 +381,28 @@ export default class DialogueFactory {
    *     ...
    *  }
    */
-  getTriggerableEvents(fulfilledPrereqs, enabledEvents) {
+  getTriggerableEvents(fulfilledPrereqs, finishedEventConvs) {
     let triggerables = [];
     for (let oneEvent of this._experimentDialogue) {
       for (let oneConv of oneEvent["conversations"]) {
-        if (oneConv.type == "trigger") {
-          if (oneConv.conditions == undefined) {
-            if (!(enabledEvents.includes(oneEvent.eventUid))) {
-              triggerables.push({
-                eventUid : oneEvent.eventUid,
-                convId : oneConv.convId
-              });
-            }
-          } else if(this._deduceCondTree(this._parse(oneConv.conditions)
-                                         , fulfilledPrereqs)) {
-            triggerables.push({
-              eventUid : oneEvent.eventUid,
-              convId : oneConv.convId
-            });
-          }
+        if (oneConv.type != "trigger") { continue; }
+
+        let isTriggerable = false;
+
+        if (Object.keys(finishedEventConvs).includes(oneEvent.eventUid)) {
+          isTriggerable = !(finishedEventConvs[oneEvent.eventUid]
+                              .includes(oneConv.convId))
+                          && this._deduceCondTree(this._parse(oneConv.conditions)
+                                                  , fulfilledPrereqs);
+        } else {
+          isTriggerable = oneConv.conditions == undefined;
+        }
+
+        if (isTriggerable) {
+          triggerables.push({
+            eventUid : oneEvent.eventUid,
+            convId : oneConv.convId
+          });
         }
       }
     }

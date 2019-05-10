@@ -171,10 +171,10 @@ describe("Test conditional tree deducing logic", () => {
 
 describe("Test get Triggerable events function", () => {
   test("No fulfilled prereqs", () => {
-    let result = factory.getTriggerableEvents([], []);
+    let result = factory.getTriggerableEvents([], {});
     let expectedEvents = [
-      { eventUid: 1, convId: 1 },
-      { eventUid: 2, convId: 1 }
+      { eventUid: "1", convId: 1 },
+      { eventUid: "2", convId: 1 }
     ];
     for (let oneEvent of result) {
       expect(expectedEvents).toContainEqual(oneEvent);
@@ -183,13 +183,13 @@ describe("Test get Triggerable events function", () => {
 
   test("Event 1 Fulfilled prereq 1 to trigger conversation 2", () => {
     let fulfilledPrereqs = [1];
-    let encounteredEvents = [1];
+    let encounteredEvents = { "1" : [1] };
 
     let result = factory.getTriggerableEvents(fulfilledPrereqs
                                               , encounteredEvents);
     let expectedEvents = [
-      { eventUid: 1, convId: 2 },
-      { eventUid: 2, convId: 1 }
+      { eventUid: "1", convId: 2 },
+      { eventUid: "2", convId: 1 }
     ];
 
     expect(result).toHaveLength(2);
@@ -200,7 +200,7 @@ describe("Test get Triggerable events function", () => {
 
   test("Does not return immediate type conversations", () => {
     let fulfilledPrereqs = [3];
-    let encounteredEvents = [2];
+    let encounteredEvents = { "2" : [1] };
 
     let result = factory.getTriggerableEvents(fulfilledPrereqs
                                               , encounteredEvents);
