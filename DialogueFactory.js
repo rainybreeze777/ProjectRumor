@@ -334,9 +334,9 @@ export default class DialogueFactory {
    */
   prepareStage(eventUid, conversationId) {
     for (let eventDialogue of this._experimentDialogue) {
-      if (eventDialogue.eventUid == eventUid) {
+      if (eventDialogue.eventUid === eventUid) {
         for (let conv of eventDialogue.conversations) {
-          if (conv.convId == conversationId) {
+          if (conv.convId === conversationId) {
             this._stagedDialogues = conv.dialogues;
             this._dialogueIndex = 0;
             return;
@@ -356,7 +356,7 @@ export default class DialogueFactory {
    */
   getNextDialogue() {
 
-    if (this._stagedDialogues == null) { return null; }
+    if (this._stagedDialogues === null) { return null; }
 
     if (this._dialogueIndex >= this._stagedDialogues.length) {
       return null;
@@ -375,17 +375,18 @@ export default class DialogueFactory {
    *        ...
    *      }
    *  @return {Js Array of Js Object}
-   *  {
+   *  [{
    *    eventUid : <an available eventUid>,
    *    convId : <triggerable conversation id of the event>,
-   *     ...
-   *  }
+   *   }
+   *   ...
+   *  ]
    */
   getTriggerableEvents(fulfilledPrereqs, finishedEventConvs) {
     let triggerables = [];
     for (let oneEvent of this._experimentDialogue) {
       for (let oneConv of oneEvent["conversations"]) {
-        if (oneConv.type != "trigger") { continue; }
+        if (oneConv.type !== "trigger") { continue; }
 
         let isTriggerable = false;
 
@@ -395,7 +396,7 @@ export default class DialogueFactory {
                           && this._deduceCondTree(this._parse(oneConv.conditions)
                                                   , fulfilledPrereqs);
         } else {
-          isTriggerable = oneConv.conditions == undefined;
+          isTriggerable = oneConv.conditions === undefined;
         }
 
         if (isTriggerable) {
@@ -426,9 +427,9 @@ export default class DialogueFactory {
     let eventUid = finishedConvs.eventUid;
 
     for (let oneEvent of this._experimentDialogue) {
-      if (oneEvent["eventUid"] != eventUid) { continue; }
+      if (oneEvent["eventUid"] !== eventUid) { continue; }
       for (let oneConv of oneEvent["conversations"]) {
-        if (oneConv.type == "immediate"
+        if (oneConv.type === "immediate"
             && !finishedConvs.finishedConvIdList.includes(oneConv.convId)
             && this._deduceCondTree(this._parse(oneConv.conditions)
                                     , fulfilledPrereqs)) {
@@ -441,15 +442,15 @@ export default class DialogueFactory {
   }
 
   _deduceCondTree(treeNode, fulfilledPrereqs) {
-    if (treeNode.type == "Literal") {
+    if (treeNode.type === "Literal") {
       return fulfilledPrereqs.includes(treeNode.value);
-    } else if (treeNode.type == "UnaryExpression" && treeNode.operator == "!") {
+    } else if (treeNode.type === "UnaryExpression" && treeNode.operator === "!") {
       return !fulfilledPrereqs.includes(treeNode.argument.value);
-    } else if (treeNode.type == "LogicalExpression") {
-      if (treeNode.operator == "&&") {
+    } else if (treeNode.type === "LogicalExpression") {
+      if (treeNode.operator === "&&") {
         return this._deduceCondTree(treeNode.left, fulfilledPrereqs)
                 && this._deduceCondTree(treeNode.right, fulfilledPrereqs);
-      } else if (treeNode.operator == "||") {
+      } else if (treeNode.operator === "||") {
         return this._deduceCondTree(treeNode.left, fulfilledPrereqs)
                 || this._deduceCondTree(treeNode.right, fulfilledPrereqs);
       } else {

@@ -9,97 +9,170 @@ export default class EventTriggerManager {
   /**
    * @constructor
    */
-  constructor() {
+  constructor(dialogueFactory) {
 
-    this._experimentPrereq = {
-      "1": {
-        eventUid: 1,
+    this._experimentPrereqs = [
+      {
+        prereqId: 1,
+        eventUid: "1",
         rumorProgress: 0
       },
-      "2" : {
-        eventUid: 1,
+      {
+        prereqId: 2,
+        eventUid: "1",
         rumorProgress: 1
       },
-      "3" : {
-        eventUid: 2,
+      {
+        prereqId: 3,
+        eventUid: "2",
         convId: 1
       },
-      "4" : {
-        eventUid: 2,
+      {
+        prereqId: 4,
+        eventUid: "2",
         convId: 2,
         action: "SELL_GOODS"
       },
-      "5" : {
-        eventUid: 2,
+      {
+        prereqId: 5,
+        eventUid: "2",
         rumorProgress: 0
       },
-      "6" : {
-        eventUid: 2,
+      {
+        prereqId: 6,
+        eventUid: "2",
         convId: 4,
         action: "CHAT"
       },
-      "7" : {
-        eventUid: 2,
+      {
+        prereqId: 7,
+        eventUid: "2",
         convId: 4,
         action: "SELL_GOODS"
       },
-      "8" : {
-        eventUid: 2,
+      {
+        prereqId: 8,
+        eventUid: "2",
         convId: 5,
         action: "SPREAD_RUMOR_0"
       },
-      "9" : {
-        eventUid: 2,
+      {
+        prereqId: 9,
+        eventUid: "2",
         rumorProgress: 1
       },
-      "10" : {
-        eventUid: 2,
+      {
+        prereqId: 10,
+        eventUid: "2",
         convId: 8,
         action: "SPREAD_RUMOR_1"
       },
-      "11" : {
-        eventUid: 2,
+      {
+        prereqId: 11,
+        eventUid: "2",
         convId: 8,
         action: "NOTHING"
       },
-      "12" : {
-        eventUid: 2,
+      {
+        prereqId: 12,
+        eventUid: "2",
         convId: 8,
         action: "SPREAD_RUMOR_0"
       },
-      "13" : {
-        eventUid: 2,
+      {
+        prereqId: 13,
+        eventUid: "2",
         convId: 9
       },
-      "14" : {
-        eventUid: 2,
+      {
+        prereqId: 14,
+        eventUid: "2",
         convId: 10
       }
-    };
+    ];
 
-    /** Expected structure:
+    this._dialogueFactory = dialogueFactory;
+
+    /**
+     * Expected structure:
+     * [{
+     *   eventUid : <an available eventUid>,
+     *   convId : <triggerable conversation id of the event>,
+     *  }
+     *  ...
+     * ]
+     */
+    this._availEventsData = [];
+    /**
+     * Expected structure:
      * {
-     *   <an available eventUid> : <starting conversation id of the event>,
-     *    ...
+     *   eventUid <Uid String> : [<finished convId integers>]
+     *   ...
      * }
      */
-    this._availEventsData = {};
+    this._finishedConvs = {};
     // List of prerequisite IDs that the player has fulfilled
-    this._fufilledPrereqsData = [];
+    this._fulfilledPrereqsData = [];
   }
 
   /**
    * Randomly choose an event from available event pools and feed the event
    * information back to caller.
-   * @param popupEventCallback - call back function that takes a single JS
-   * Object as argument.
-   * Argument Event object has structure:
+   * @return {Js Object} with structure
    * {
    *    eventUid: {number},
    *    convId: {number}
    * }
    */
-  askForPopupEvent(popupEventCallback) {
-    popupEventCallback(undefined);
+  askForPopupEvent() {
+    return this._availEventsData[Math.floor(
+                                    Math.random()
+                                    * this._availEventsData.length
+                                    + 1)];
+  }
+
+  /**
+   * Whenever a conversation has completed, need to call this function so that
+   * EventTriggerManager can check if new events are now available
+   * @param {eventUid string} eventUid - current engaged event unique id
+   * @param {integer} convId - current finished conversation id
+   * @param {string} action - current completed action
+   * @param {integer} rumorProgress - the Id of the rumor progress, if unlocked
+   */
+  performedInteraction(eventUid, convId, action, rumorProgress) {
+    let performed = {
+      eventUid: eventUid,
+      convId: convId,
+      action: action,
+      rumorProgress: rumorProgress
+    };
+    // First deduce if this fulfills any condition
+    for (let prereq of this._experimentPrereqs) {
+      if (this._fulfilledPrereqsData.includes(prereq["prereqId"])) {
+        continue;
+      }
+      let fulfilled = true;
+      for (let prop of Object.getOwnPropertyNames(prereq)) {
+        if (prop === "prereqId") { continue; }
+        if (prereq[prop] !== performed[prop]) {
+          fulfilled = false;
+          break;
+        }
+      }
+      if (fulfilled) {
+        this._fulfilledPrereqsData.push(prereq["prereqId"]);
+      }
+    }
+
+    // Then record this as finished conversation
+    if (this._finishedConvs[eventUid] === undefined) {
+      this._finishedConvs[eventUid] = [];
+    }
+    this._finishedConvs[eventUid].push(convId);
+
+    // Finally update available events data
+    this._availEventsData
+      = this._dialogueFactory.getTriggerableEvents(this._fulfilledPrereqsData,
+                                                   this._finishedConvs);
   }
 }
