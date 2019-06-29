@@ -19,39 +19,87 @@ class Renderer {
     this._dialogueFactory = new DialogueFactory();
     this._interactionManager = new InteractionManager(this._rumorCatalogue
                                                       , this._dialogueFactory);
-    this._eventTriggerManager = new EventTriggerManager();
+    this._eventTriggerManager = new EventTriggerManager(this._dialogueFactory);
     this._shopManager = new ShopManager(this._eventTriggerManager);
-    this._selectedEventUId = -1;
-    this._selectedEventConvId = 0;
+    this._rumorEventsQueue = [];
+    this._currentEventUid = -1;
+    this._currentConvUid = -1;
+    this._rumorIdToAdvance = undefined;
+    this._timePaused = false;
   }
 
   main() {
 
-    this._selectedEventUId = 2;
-    this._selectedEventConvId = 0;
+    // this._selectedEventUId = 2;
+    // this._selectedEventConvId = 0;
+    //
+    // this._interactionManager.addRumorChangeCallBack(() => {
+    //   this.displayRumor(this._selectedEventUId);
+    // });
+    // this._interactionManager.addActionPromptCallBack((actionTagsList) => {
+    //   this.displayActions(actionTagsList);
+    // });
 
-    this._interactionManager.addRumorChangeCallBack(() => {
-      this.displayRumor(this._selectedEventUId);
-    });
-    this._interactionManager.addActionPromptCallBack((actionTagsList) => {
-      this.displayActions(actionTagsList);
+    // $('.advance_button').click(() => {
+    //   ++this._selectedEventConvId;
+    // });
+    //
+    // $('.focus_button').click(() => {
+    //   this._interactionManager.prepareConversation(this._selectedEventUId
+    //                                                , this._selectedEventConvId);
+    // });
+    //
+    // $('p.dialogue').click(() => {
+    //   this.displayDialogue();
+    // });
+
+    $('.event_button').attr('disabled', true);
+    $('.conversation_interface').attr('hidden', true);
+
+    $('.dialogue').click(() => {
+      let nextDialogue = this._interactionManager.nextConvLine();
+      // TODO: Read dialogues, eventTriggerManager generating duplicate
+      // when asked for available events
+      if (nextDialogue != null) {
+        $('.speaker').text(nextDialogue.speaker);
+        $('.dialogue').text(nextDialogue.text);
+        this._rumorIdToAdvance = nextDialogue.advanceRumorProgressId;
+      } else {
+        this._resumeTime(() => {
+          $('.speaker').empty();
+          $('.dialogue').empty();
+          this._eventTriggerManager
+                .performedInteraction(this._currentEventUid
+                                      , this._currentConvUid
+                                      , undefined
+                                      , this._rumorIdToAdvance);
+          this._rumorIdToAdvance = undefined;
+        });
+      }
     });
 
-    $('.advance_button').click(() => {
-      ++this._selectedEventConvId;
-    });
-
-    $('.focus_button').click(() => {
-      this._interactionManager.prepareConversation(this._selectedEventUId
-                                                   , this._selectedEventConvId);
-    });
-
-    $('p.dialogue').click(() => {
-      this.displayDialogue();
+    $('.event_button').click(() => {
+      this._pauseTime(() => {
+        let initEvent = this._rumorEventsQueue.shift();
+        this._currentEventUid = initEvent["eventUid"];
+        this._currentConvUid = initEvent["convId"];
+        this._interactionManager.prepareConversation(initEvent["eventUid"]
+                                                     , initEvent["convId"]);
+        let nextDialogue = this._interactionManager.nextConvLine();
+        // TODO: Read dialogues, eventTriggerManager generating duplicate
+        // when asked for available events
+        if (nextDialogue != null) {
+          $('.speaker').text(nextDialogue.speaker);
+          $('.dialogue').text(nextDialogue.text);
+        }
+      });
     });
 
     this._shopManager.addObserver((data) => {
       $('.gold').text(data["gold"]);
+    });
+    this._shopManager.addPopupEventObserver((popupEventData) => {
+      this.showEvent(popupEventData);
     });
     this._shopManager.startTicking();
   }
@@ -62,17 +110,6 @@ class Renderer {
     choicesDom.empty();
     for (let [rumorQuality, rumorText] of Object.entries(choicesObj)) {
       $('<li/>', { text: rumorQuality + ': ' + rumorText }).appendTo(choicesDom);
-    }
-  }
-
-  displayDialogue() {
-    let nextDialogue = this._interactionManager.nextConvLine();
-    if (nextDialogue != null) {
-      $('.speaker').text(nextDialogue.speaker);
-      $('.dialogue').text(nextDialogue.text);
-    } else {
-      $('.speaker').empty();
-      $('.dialogue').empty();
     }
   }
 
@@ -93,6 +130,31 @@ class Renderer {
     }
   }
 
+  showEvent(popupEvent) {
+    if(popupEvent == undefined) {
+      console.log("wtf is wrong with u");
+    }
+    this._rumorEventsQueue.push(popupEvent);
+    $('.event_button').removeAttr('disabled');
+  }
+
+  _pauseTime(thenDo) {
+    this._timePaused = true;
+    this._shopManager.stopTicking();
+    $('.event_button').attr('disabled', true);
+    $('.conversation_interface').removeAttr('hidden');
+    thenDo();
+  }
+
+  _resumeTime(thenDo) {
+    this._shopManager.startTicking();
+    if (this._rumorEventsQueue.length > 0) {
+      $('.event_button').removeAttr('disabled');
+    }
+    $('.conversation_interface').attr('hidden', true);
+    this._timePaused = false;
+    thenDo();
+  }
 }
 
 (new Renderer()).main();

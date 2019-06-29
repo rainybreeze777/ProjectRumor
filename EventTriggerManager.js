@@ -127,8 +127,7 @@ export default class EventTriggerManager {
   askForPopupEvent() {
     return this._availEventsData[Math.floor(
                                     Math.random()
-                                    * this._availEventsData.length
-                                    + 1)];
+                                    * this._availEventsData.length)];
   }
 
   /**
@@ -171,6 +170,12 @@ export default class EventTriggerManager {
     this._finishedConvs[eventUid].push(convId);
 
     // Finally update available events data
+    this._availEventsData
+      = this._dialogueFactory.getTriggerableEvents(this._fulfilledPrereqsData,
+                                                   this._finishedConvs);
+  }
+
+  initData() {
     this._availEventsData
       = this._dialogueFactory.getTriggerableEvents(this._fulfilledPrereqsData,
                                                    this._finishedConvs);

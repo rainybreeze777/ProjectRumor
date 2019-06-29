@@ -6,14 +6,17 @@
   </head>
   <body>
     <h1>Project Rumor</h1>
-    <h2>Events</h2>
-    <ul class="events"></ul>
+    <h2>Shop</h2>
+    <div>
+      Gold: <span class="gold"></span>
+    </div>
+    <div>
+      <button type="button" class="event_button">New Event</button>
+    </div>
     <h2>Choices</h2>
     <ul class="choices"></ul>
-    <button type="button" class="advance_button">Advance</button>
-    <button type="button" class="focus_button">Focus</button>
     <h2>Dialogue</h2>
-    <div>
+    <div class="conversation_interface">
       <span class="speaker"></span>
       <p class="dialogue"></p>
       <style type="text/css">
@@ -23,12 +26,7 @@
       </style>
     </div>
     <h3>Actions</h3>
-    <div class="actions">
-    <h2>Status</h2>
-    <div>
-      Gold: <span class="gold"></span>
-    </div>
-    </div>
+    <div class="actions" />
     <script>
       // You can also require other files to run in this process
       require('./renderer.js')

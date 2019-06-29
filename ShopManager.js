@@ -14,8 +14,12 @@ export default class ShopManager {
     this._tickInterval = 1000; // default to 1 second per tick
     this._tickJob = undefined;
     this._observers = [];
+    this._popupEventObserver = [];
     this._eventTriggerManager = eventTriggerManager;
     this._popupEventsQueue = [];
+    this._popupEventChance = 0.2;
+
+    this._eventTriggerManager.initData();
   }
 
   tick() {
@@ -23,7 +27,14 @@ export default class ShopManager {
     for (let cb of this._observers) {
       cb({ 'gold' : this._gold });
     }
-    this._eventTriggerManager.askForPopupEvent(this.recordPopups);
+
+    if (Math.random() <= this._popupEventChance) {
+      let popupEvent = this._eventTriggerManager.askForPopupEvent();
+      this.recordPopup(popupEvent);
+      for (let cb of this._popupEventObserver) {
+        cb(popupEvent);
+      }
+    }
   }
 
   startTicking() {
@@ -44,7 +55,7 @@ export default class ShopManager {
    *    convId: {number}
    * }
    */
-  recordPopups(popupEvent) {
+  recordPopup(popupEvent) {
     if (popupEvent == undefined) {
       // Nothing happened during one tick
       return;
@@ -56,5 +67,9 @@ export default class ShopManager {
 
   addObserver(obCallback) {
     this._observers.push(obCallback);
+  }
+
+  addPopupEventObserver(obCallback) {
+    this._popupEventObserver.push(obCallback);
   }
 }
