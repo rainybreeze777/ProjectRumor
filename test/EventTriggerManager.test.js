@@ -1,14 +1,19 @@
 'use strict';
 
 import DialogueFactory from '../DialogueFactory.js';
+import RumorCatalogue from '../RumorCatalogue.js';
 import EventTriggerManager from '../EventTriggerManager.js';
 
 jest.mock('../DialogueFactory');
+jest.mock('../RumorCatalogue');
 
 describe("Test performedInteraction", () => {
 
   let mockGetTriggerableEvents = null;
+  let mockGetImmediateResponse = null;
+  let mockGetProgressOfEvent = null;
   let factory = null;
+  let catalogue = null;
 
   beforeAll(() => {
     mockGetTriggerableEvents = jest.fn();
@@ -17,23 +22,40 @@ describe("Test performedInteraction", () => {
         {eventUid: "1", convId: 1},
         {eventUid: "2", convId: 1}
       ]);
+    mockGetImmediateResponse = jest.fn();
+    mockGetImmediateResponse.mockReturnValue([]);
+
     DialogueFactory.mockImplementation(() => {
       return {
-        getTriggerableEvents: mockGetTriggerableEvents
+        getTriggerableEvents: mockGetTriggerableEvents,
+        getImmediateResponse: mockGetImmediateResponse
       };
     });
 
+    mockGetProgressOfEvent = jest.fn();
+
+    RumorCatalogue.mockImplementation(() => {
+      return {
+        getProgressOfEvent: mockGetProgressOfEvent
+      }
+    });
+
     factory = new DialogueFactory();
+    catalogue = new RumorCatalogue();
   });
 
   beforeEach(() => {
     DialogueFactory.mockClear();
+    RumorCatalogue.mockClear();
     mockGetTriggerableEvents.mockClear();
+    mockGetProgressOfEvent.mockClear();
+
+    mockGetProgressOfEvent.mockReturnValue(0);
   });
 
   test("Test basic calls", () => {
-    let eventTriggerManager = new EventTriggerManager(factory);
-    eventTriggerManager.performedInteraction("1", 1, undefined, 0);
+    let eventTriggerManager = new EventTriggerManager(factory, catalogue);
+    eventTriggerManager.performedInteraction("1", 1, undefined);
 
     let data = eventTriggerManager._fulfilledPrereqsData;
     expect(data.length).toBe(1);
@@ -54,8 +76,9 @@ describe("Test performedInteraction", () => {
   });
 
   test("Test fulfills no condition", () => {
-    let eventTriggerManager = new EventTriggerManager(factory);
-    eventTriggerManager.performedInteraction("1", 2, undefined, undefined);
+    mockGetProgressOfEvent.mockReturnValue(undefined);
+    let eventTriggerManager = new EventTriggerManager(factory, catalogue);
+    eventTriggerManager.performedInteraction("1", 2, undefined);
 
     let data = eventTriggerManager._fulfilledPrereqsData;
     expect(data.length).toBe(0);
@@ -67,9 +90,9 @@ describe("Test performedInteraction", () => {
   });
 
   test("Test fulfills condition with extra unused info", () => {
-    let eventTriggerManager = new EventTriggerManager(factory);
+    let eventTriggerManager = new EventTriggerManager(factory, catalogue);
 
-    eventTriggerManager.performedInteraction("2", 0, "unused", 0);
+    eventTriggerManager.performedInteraction("2", 0, "unused");
 
     let data = eventTriggerManager._fulfilledPrereqsData;
     expect(data.length).toBe(1);

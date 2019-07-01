@@ -19,12 +19,12 @@ class Renderer {
     this._dialogueFactory = new DialogueFactory();
     this._interactionManager = new InteractionManager(this._rumorCatalogue
                                                       , this._dialogueFactory);
-    this._eventTriggerManager = new EventTriggerManager(this._dialogueFactory);
+    this._eventTriggerManager = new EventTriggerManager(this._dialogueFactory
+                                                        , this._rumorCatalogue);
     this._shopManager = new ShopManager(this._eventTriggerManager);
     this._rumorEventsQueue = [];
     this._currentEventUid = -1;
     this._currentConvUid = -1;
-    this._rumorIdToAdvance = undefined;
     this._timePaused = false;
   }
 
@@ -61,25 +61,59 @@ class Renderer {
       // TODO: Read dialogues, eventTriggerManager generating duplicate
       // when asked for available events
       if (nextDialogue != null) {
-        $('.speaker').text(nextDialogue.speaker);
-        $('.dialogue').text(nextDialogue.text);
-        this._rumorIdToAdvance = nextDialogue.advanceRumorProgressId;
+        if (nextDialogue.actions != undefined) {
+          this._changeUiDisplayState(() => {
+            for (let actionTag of nextDialogue.actions) {
+              let newButton = $('<button/>', { type: "button", text: actionTag });
+              if (actionTag == "SPREAD_RUMOR") {
+
+              } else {
+                newButton.click(() => {
+                  $('div.actions').empty();
+                  let nextConvId =
+                        this._eventTriggerManager.performedInteraction(
+                          this._currentEventUid
+                          , this._currentConvUid
+                          , actionTag);
+                  this._currentConvUid = nextConvId[0]
+
+                  this._changeUiDisplayState(
+                        undefined
+                        , "CONVERSATION"
+                        , () => {
+                          this._interactionManager
+                                .prepareConversation(this._currentEventUid
+                                                     , this._currentConvUid);
+                          let nextDialogue = this._interactionManager.nextConvLine();
+                          if (nextDialogue != null) {
+                            $('.speaker').text(nextDialogue.speaker);
+                            $('.dialogue').text(nextDialogue.text);
+                          }
+                        }
+                  );
+                });
+              }
+              newButton.appendTo('div.actions');
+            }
+          }, "ACTION", undefined);
+        } else {
+          $('.speaker').text(nextDialogue.speaker);
+          $('.dialogue').text(nextDialogue.text);
+        }
       } else {
-        this._resumeTime(() => {
+        this._changeUiDisplayState(undefined, "ROUTINE", () => {
           $('.speaker').empty();
           $('.dialogue').empty();
           this._eventTriggerManager
                 .performedInteraction(this._currentEventUid
                                       , this._currentConvUid
-                                      , undefined
-                                      , this._rumorIdToAdvance);
-          this._rumorIdToAdvance = undefined;
+                                      , undefined);
         });
       }
     });
 
     $('.event_button').click(() => {
-      this._pauseTime(() => {
+      this._changeUiDisplayState(undefined, "CONVERSATION", () => {
         let initEvent = this._rumorEventsQueue.shift();
         this._currentEventUid = initEvent["eventUid"];
         this._currentConvUid = initEvent["convId"];
@@ -113,23 +147,6 @@ class Renderer {
     }
   }
 
-  displayActions(actionTagsList) {
-    $('div.actions').empty();
-    for (let actionTag of actionTagsList) {
-      let newButton = $('<button/>', { type: "button", text: actionTag });
-      if (actionTag == "SPREAD_RUMOR") {
-
-      } else {
-        newButton.click(() => {
-          this._interactionManager.chooseAction(actionTag);
-          $('div.actions').empty();
-          this.displayDialogue();
-        });
-      }
-      newButton.appendTo('div.actions');
-    }
-  }
-
   showEvent(popupEvent) {
     if(popupEvent == undefined) {
       console.log("wtf is wrong with u");
@@ -138,22 +155,27 @@ class Renderer {
     $('.event_button').removeAttr('disabled');
   }
 
-  _pauseTime(thenDo) {
-    this._timePaused = true;
-    this._shopManager.stopTicking();
-    $('.event_button').attr('disabled', true);
-    $('.conversation_interface').removeAttr('hidden');
-    thenDo();
-  }
-
-  _resumeTime(thenDo) {
-    this._shopManager.startTicking();
-    if (this._rumorEventsQueue.length > 0) {
-      $('.event_button').removeAttr('disabled');
+  _changeUiDisplayState(beforeDo, toState, thenDo) {
+    if (beforeDo != undefined) { beforeDo(); }
+    if (toState == "ROUTINE") {
+      this._shopManager.startTicking();
+      if (this._rumorEventsQueue.length > 0) {
+        $('.event_button').removeAttr('disabled');
+      }
+      $('.conversation_interface').attr('hidden', true);
+      $('.actions').attr('hidden', true);
+      this._timePaused = false;
+    } else if (toState == "CONVERSATION") {
+      this._timePaused = true;
+      this._shopManager.stopTicking();
+      $('.event_button').attr('disabled', true);
+      $('.conversation_interface').removeAttr('hidden');
+      $('.actions').attr('hidden', true);
+    } else if (toState == "ACTION") {
+      $('.conversation_interface').attr('hidden', true);
+      $('.actions').removeAttr('hidden');
     }
-    $('.conversation_interface').attr('hidden', true);
-    this._timePaused = false;
-    thenDo();
+    if (thenDo != undefined) { thenDo(); }
   }
 }
 

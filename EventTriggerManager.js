@@ -9,7 +9,7 @@ export default class EventTriggerManager {
   /**
    * @constructor
    */
-  constructor(dialogueFactory) {
+  constructor(dialogueFactory, rumorCatalogue) {
 
     this._experimentPrereqs = [
       {
@@ -92,6 +92,7 @@ export default class EventTriggerManager {
     ];
 
     this._dialogueFactory = dialogueFactory;
+    this._rumorCatalogue = rumorCatalogue;
 
     /**
      * Expected structure:
@@ -136,14 +137,15 @@ export default class EventTriggerManager {
    * @param {eventUid string} eventUid - current engaged event unique id
    * @param {integer} convId - current finished conversation id
    * @param {string} action - current completed action
-   * @param {integer} rumorProgress - the Id of the rumor progress, if unlocked
+   *
+   * @return {Js Array of Integers} List of available immediate conversations
    */
-  performedInteraction(eventUid, convId, action, rumorProgress) {
+  performedInteraction(eventUid, convId, action) {
     let performed = {
       eventUid: eventUid,
       convId: convId,
       action: action,
-      rumorProgress: rumorProgress
+      rumorProgress: this._rumorCatalogue.getProgressOfEvent(eventUid)
     };
     // First deduce if this fulfills any condition
     for (let prereq of this._experimentPrereqs) {
@@ -173,6 +175,14 @@ export default class EventTriggerManager {
     this._availEventsData
       = this._dialogueFactory.getTriggerableEvents(this._fulfilledPrereqsData,
                                                    this._finishedConvs);
+
+    return this._dialogueFactory
+                  .getImmediateResponse(
+                    this._fulfilledPrereqsData,
+                    {
+                      eventUid: eventUid,
+                      finishedConvIdList: this._finishedConvs[eventUid]
+                    });
   }
 
   initData() {

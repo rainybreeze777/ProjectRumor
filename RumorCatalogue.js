@@ -52,4 +52,14 @@ export default class RumorCatalogue {
   exists(eventUid) {
     return this._allEvents.has(eventUid);
   }
+
+  /**
+   * Get the progress of an event
+   * @param {uuid} eventUid - the uuid of event in question
+   * @return {integer}
+   */
+  getProgressOfEvent(eventUid) {
+    if (this._allEvents[eventUid] == undefined) { return undefined; }
+    return this._allEvents[eventUid].getProgress();
+  }
 }

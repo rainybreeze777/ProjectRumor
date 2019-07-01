@@ -417,7 +417,7 @@ export default class DialogueFactory {
    *  @param {Js Object} finishedConvs - A Js object that records eventUid and
    *    finished conversations within event
    *    {
-   *        eventUid: <integer>,
+   *        eventUid: <Uid String>,
    *        finishedConvIdList: [<integers>]
    *    }
    *  @return {Js Array of Integers} List of available immediate conversations
