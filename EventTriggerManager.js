@@ -125,6 +125,16 @@ export default class EventTriggerManager {
     this._availEventsData = [];
     /**
      * Expected structure:
+     * [{
+     *   eventUid : <an available eventUid>,
+     *   convId : <triggerable conversation id of the event>,
+     *  }
+     *  ...
+     * ]
+     */
+    this._popedNotCollected = [];
+    /**
+     * Expected structure:
      * {
      *   eventUid <Uid String> : [<finished convId integers>]
      *   ...
@@ -145,16 +155,21 @@ export default class EventTriggerManager {
    * }
    */
   askForPopupEvent() {
-    return this._availEventsData[Math.floor(
-                                    Math.random()
-                                    * this._availEventsData.length)];
+    let popIndex = Math.floor(Math.random() * this._availEventsData.length);
+    let popData = this._availEventsData[popIndex];
+    if (popData !== undefined)
+    {
+      this._popedNotCollected.push(popData);
+      this._availEventsData.splice(popIndex, 1);
+    }
+    return popData;
   }
 
   /**
    * Whenever a conversation has completed, need to call this function so that
    * EventTriggerManager can check if new events are now available
    * @param {eventUid string} eventUid - current engaged event unique id
-   * @param {integer} convId - current finished conversation id
+   * @param {integer} convId - `current finished conversation id
    * @param {string} action - current completed action
    *
    * @return {Js Array of Integers} List of available immediate conversations
@@ -183,10 +198,29 @@ export default class EventTriggerManager {
     }
     this._finishedConvs[eventUid].push(convId);
 
+    // Then remove from _popedNotCollected
+    for (let index = 0; index < this._popedNotCollected.length; ++index) {
+      let poped = this._popedNotCollected[index];
+      if (poped.eventUid == eventUid && poped.convId == convId) {
+        this._popedNotCollected.splice(index, 1);
+        break;
+      }
+    }
+
     // Finally update available events data
-    this._availEventsData
-      = this._dialogueFactory.getTriggerableEvents(this._fulfilledPrereqsData,
-                                                   this._finishedConvs);
+    this._availEventsData =
+          this._dialogueFactory
+              .getTriggerableEvents(this._fulfilledPrereqsData,
+                                    this._finishedConvs)
+              .filter(oneEvent => {
+                for (let poped of this._popedNotCollected) {
+                  if (poped.eventUid === oneEvent.eventUid
+                      && poped.convId === oneEvent.convId) {
+                    return false;
+                  }
+                }
+                return true;
+              });
 
     return this._dialogueFactory
                   .getImmediateResponse(

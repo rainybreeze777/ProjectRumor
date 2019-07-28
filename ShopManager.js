@@ -30,9 +30,11 @@ export default class ShopManager {
 
     if (Math.random() <= this._popupEventChance) {
       let popupEvent = this._eventTriggerManager.askForPopupEvent();
-      this.recordPopup(popupEvent);
-      for (let cb of this._popupEventObserver) {
-        cb(popupEvent);
+      if (popupEvent !== undefined) {
+        this.recordPopup(popupEvent);
+        for (let cb of this._popupEventObserver) {
+          cb(popupEvent);
+        }
       }
     }
   }
@@ -56,13 +58,8 @@ export default class ShopManager {
    * }
    */
   recordPopup(popupEvent) {
-    if (popupEvent == undefined) {
-      // Nothing happened during one tick
-      return;
-    } else {
       this._popupEventsQueue.push(popupEvent);
       // TODO: notify necessary components that new pop up event is available
-    }
   }
 
   addObserver(obCallback) {
