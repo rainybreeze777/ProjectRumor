@@ -13,8 +13,6 @@
     <div>
       <button type="button" class="event_button">New Event</button>
     </div>
-    <h2>Choices</h2>
-    <ul class="choices"></ul>
     <div class="conversation_interface">
       <h2>Dialogue</h2>
       <span class="speaker"></span>
@@ -25,8 +23,19 @@
         }
       </style>
     </div>
-    <div class="actions">
+    <div class="actions_interface">
       <h3>Actions</h3>
+      <div class="actions"></div>
+    </div>
+    <div class="rumors_interface">
+      <h2>Spread Rumors</h2>
+      <div class="rumor_choices"></div>
+      <button type="button" class="rumors_interface_back">Back</button>
+      <style type="text/css">
+        p.rumor_choice {
+          border-style: solid;
+        }
+      </style>
     </div>
     <script>
       // You can also require other files to run in this process

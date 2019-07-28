@@ -24,37 +24,22 @@ class Renderer {
     this._shopManager = new ShopManager(this._eventTriggerManager);
     this._rumorEventsQueue = [];
     this._currentEventUid = -1;
-    this._currentConvUid = -1;
+    this._currentConvId = -1;
     this._timePaused = false;
+
+    this._allInterfaces = undefined;
   }
 
   main() {
 
-    // this._selectedEventUId = 2;
-    // this._selectedEventConvId = 0;
-    //
-    // this._interactionManager.addRumorChangeCallBack(() => {
-    //   this.displayRumor(this._selectedEventUId);
-    // });
-    // this._interactionManager.addActionPromptCallBack((actionTagsList) => {
-    //   this.displayActions(actionTagsList);
-    // });
-
-    // $('.advance_button').click(() => {
-    //   ++this._selectedEventConvId;
-    // });
-    //
-    // $('.focus_button').click(() => {
-    //   this._interactionManager.prepareConversation(this._selectedEventUId
-    //                                                , this._selectedEventConvId);
-    // });
-    //
-    // $('p.dialogue').click(() => {
-    //   this.displayDialogue();
-    // });
-
     $('.event_button').attr('disabled', true);
     $('.conversation_interface').attr('hidden', true);
+
+    this._allInterfaces = [$('.conversation_interface')
+                           , $('.actions_interface')
+                           , $('.rumors_interface')];
+
+    this._hideAllInterfaces();
 
     $('.dialogue').click(() => {
       let nextDialogue = this._interactionManager.nextConvLine();
@@ -64,33 +49,17 @@ class Renderer {
         if (nextDialogue.actions != undefined) {
           this._changeUiDisplayState(() => {
             for (let actionTag of nextDialogue.actions) {
-              let newButton = $('<button/>', { type: "button", text: actionTag });
+              let newButton = $('<button/>'
+                                , { type: "button", text: actionTag });
               if (actionTag == "SPREAD_RUMOR") {
-
+                newButton.click(() => {
+                  this._changeUiDisplayState(undefined
+                                             , "SPREAD_RUMOR"
+                                             , undefined);
+                })
               } else {
                 newButton.click(() => {
-                  $('div.actions').empty();
-                  let nextConvId =
-                        this._eventTriggerManager.performedInteraction(
-                          this._currentEventUid
-                          , this._currentConvUid
-                          , actionTag);
-                  this._currentConvUid = nextConvId[0]
-
-                  this._changeUiDisplayState(
-                        undefined
-                        , "CONVERSATION"
-                        , () => {
-                          this._interactionManager
-                                .prepareConversation(this._currentEventUid
-                                                     , this._currentConvUid);
-                          let nextDialogue = this._interactionManager.nextConvLine();
-                          if (nextDialogue != null) {
-                            $('.speaker').text(nextDialogue.speaker);
-                            $('.dialogue').text(nextDialogue.text);
-                          }
-                        }
-                  );
+                  this._doAction(actionTag);
                 });
               }
               newButton.appendTo('div.actions');
@@ -106,7 +75,7 @@ class Renderer {
           $('.dialogue').empty();
           this._eventTriggerManager
                 .performedInteraction(this._currentEventUid
-                                      , this._currentConvUid
+                                      , this._currentConvId
                                       , undefined);
         });
       }
@@ -116,7 +85,7 @@ class Renderer {
       this._changeUiDisplayState(undefined, "CONVERSATION", () => {
         let initEvent = this._rumorEventsQueue.shift();
         this._currentEventUid = initEvent["eventUid"];
-        this._currentConvUid = initEvent["convId"];
+        this._currentConvId = initEvent["convId"];
         this._interactionManager.prepareConversation(initEvent["eventUid"]
                                                      , initEvent["convId"]);
         let nextDialogue = this._interactionManager.nextConvLine();
@@ -136,15 +105,10 @@ class Renderer {
       this.showEvent(popupEventData);
     });
     this._shopManager.startTicking();
-  }
 
-  displayRumor(eventUid) {
-    let choicesObj = this._rumorCatalogue.getSpreadableRumors(eventUid);
-    let choicesDom = $('.choices');
-    choicesDom.empty();
-    for (let [rumorQuality, rumorText] of Object.entries(choicesObj)) {
-      $('<li/>', { text: rumorQuality + ': ' + rumorText }).appendTo(choicesDom);
-    }
+    this._interactionManager.addRumorChangeCallBack(() => {
+      this.refreshRumors();
+    })
   }
 
   showEvent(popupEvent) {
@@ -155,6 +119,29 @@ class Renderer {
     $('.event_button').removeAttr('disabled');
   }
 
+  refreshRumors() {
+    let choicesDiv = $('div.rumor_choices');
+    choicesDiv.empty();
+    for (let [eventUid, eventStoryNode] of Object.entries(this._rumorCatalogue
+                                                              .getAllEvents())) {
+      let rumorDesc = $('<span/>', { text: eventStoryNode.getStoryTitle() });
+      choicesDiv.append(rumorDesc);
+      for (let [quality, text] of Object.entries(eventStoryNode
+                                                  .getRumorChoiceTexts())) {
+        let choiceP = $('<p/>', { text: text, class: "rumor_choice" });
+        choiceP.click(() => {
+          this._doAction("SPREAD_RUMOR", {
+            rumorEventUid: eventUid,
+            rumorProgressId: eventStoryNode.getProgress(),
+            // Stupid loop iteration turns keys into strings
+            rumorQuality: parseInt(quality)
+          });
+        });
+        choicesDiv.append(choiceP);
+      }
+    }
+  }
+
   _changeUiDisplayState(beforeDo, toState, thenDo) {
     if (beforeDo != undefined) { beforeDo(); }
     if (toState == "ROUTINE") {
@@ -162,20 +149,60 @@ class Renderer {
       if (this._rumorEventsQueue.length > 0) {
         $('.event_button').removeAttr('disabled');
       }
-      $('.conversation_interface').attr('hidden', true);
-      $('.actions').attr('hidden', true);
+      this._hideAllInterfaces();
       this._timePaused = false;
     } else if (toState == "CONVERSATION") {
       this._timePaused = true;
       this._shopManager.stopTicking();
       $('.event_button').attr('disabled', true);
-      $('.conversation_interface').removeAttr('hidden');
-      $('.actions').attr('hidden', true);
+      this._showInterface("conversation_interface");
     } else if (toState == "ACTION") {
-      $('.conversation_interface').attr('hidden', true);
-      $('.actions').removeAttr('hidden');
+      this._showInterface("actions_interface");
+    } else if (toState == "SPREAD_RUMOR") {
+      this._showInterface("rumors_interface");
     }
     if (thenDo != undefined) { thenDo(); }
+  }
+
+  _doAction(actionTag, actionData) {
+    $('div.actions').empty();
+    let nextConvId =
+          this._eventTriggerManager.performedInteraction(
+            this._currentEventUid
+            , this._currentConvId
+            , actionTag
+            , actionData);
+    this._currentConvId = nextConvId[0];
+
+    this._changeUiDisplayState(
+          undefined
+          , "CONVERSATION"
+          , () => {
+            this._interactionManager
+                  .prepareConversation(this._currentEventUid
+                                       , this._currentConvId);
+            let nextDialogue = this._interactionManager.nextConvLine();
+            if (nextDialogue != null) {
+              $('.speaker').text(nextDialogue.speaker);
+              $('.dialogue').text(nextDialogue.text);
+            }
+          }
+    );
+  }
+
+  _hideAllInterfaces() {
+    for (let i of this._allInterfaces) {
+      i.attr('hidden', true);
+    }
+  }
+
+  _showInterface(interfaceName) {
+    this._hideAllInterfaces();
+    for (let i of this._allInterfaces) {
+      if (i.attr("class") == interfaceName) {
+        i.removeAttr('hidden');
+      }
+    }
   }
 }
 

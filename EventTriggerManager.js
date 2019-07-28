@@ -54,7 +54,17 @@ export default class EventTriggerManager {
         prereqId: 8,
         eventUid: "2",
         convId: 5,
-        action: "SPREAD_RUMOR_0"
+        action: "SPREAD_RUMOR",
+        actionData: {
+          rumorEventUid: "2",
+          rumorProgressId: 0,
+          rumorQuality: 0
+        }
+      },
+      {
+        prereqId: 15,
+        eventUid: "2",
+        convId: 5
       },
       {
         prereqId: 9,
@@ -65,19 +75,28 @@ export default class EventTriggerManager {
         prereqId: 10,
         eventUid: "2",
         convId: 8,
-        action: "SPREAD_RUMOR_1"
+        action: "SPREAD_RUMOR",
+        actionData: {
+          rumorEventUid: "2",
+          rumorProgressId: 1,
+          rumorQuality: 1
+        }
       },
       {
         prereqId: 11,
         eventUid: "2",
-        convId: 8,
-        action: "NOTHING"
+        convId: 8
       },
       {
         prereqId: 12,
         eventUid: "2",
         convId: 8,
-        action: "SPREAD_RUMOR_0"
+        action: "SPREAD_RUMOR",
+        actionData: {
+          rumorEventUid: "2",
+          rumorProgressId: 1,
+          rumorQuality: 0
+        }
       },
       {
         prereqId: 13,
@@ -140,11 +159,12 @@ export default class EventTriggerManager {
    *
    * @return {Js Array of Integers} List of available immediate conversations
    */
-  performedInteraction(eventUid, convId, action) {
+  performedInteraction(eventUid, convId, action, actionData) {
     let performed = {
       eventUid: eventUid,
       convId: convId,
       action: action,
+      actionData: actionData,
       rumorProgress: this._rumorCatalogue.getProgressOfEvent(eventUid)
     };
     // First deduce if this fulfills any condition
@@ -152,15 +172,7 @@ export default class EventTriggerManager {
       if (this._fulfilledPrereqsData.includes(prereq["prereqId"])) {
         continue;
       }
-      let fulfilled = true;
-      for (let prop of Object.getOwnPropertyNames(prereq)) {
-        if (prop === "prereqId") { continue; }
-        if (prereq[prop] !== performed[prop]) {
-          fulfilled = false;
-          break;
-        }
-      }
-      if (fulfilled) {
+      if (this._objectIsSubSetOf(prereq, performed, ["prereqId"])) {
         this._fulfilledPrereqsData.push(prereq["prereqId"]);
       }
     }
@@ -189,5 +201,22 @@ export default class EventTriggerManager {
     this._availEventsData
       = this._dialogueFactory.getTriggerableEvents(this._fulfilledPrereqsData,
                                                    this._finishedConvs);
+  }
+
+  _objectIsSubSetOf(subObj, superObj, skipProps) {
+    if (subObj === superObj) { return true; }
+    if (subObj === undefined || superObj === undefined) { return false; }
+    for (let prop of Object.getOwnPropertyNames(subObj)) {
+      if (skipProps.includes(prop)) { continue; }
+      if (typeof subObj[prop] === "object") {
+        if (!this._objectIsSubSetOf(subObj[prop], superObj[prop], skipProps)) {
+          return false;
+        }
+      } else if (subObj[prop] !== superObj[prop]) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }

@@ -228,6 +228,17 @@ export default class DialogueFactory {
             ]
           },
           {
+            convId: 13,
+            type: "immediate",
+            conditions: "15 && !8",
+            dialogues: [
+              {
+                speaker: 2,
+                text: "这都什么鸡毛蒜皮的事情，也给老子说，烦不烦？！上茶上茶！",
+              }
+            ]
+          },
+          {
             convId: 8,
             type: "trigger",
             conditions: "9",
@@ -247,7 +258,7 @@ export default class DialogueFactory {
           {
             convId: 9,
             type: "immediate",
-            conditions: "10 || 11",
+            conditions: "11 && !12",
             dialogues: [
               {
                 speaker: 3,

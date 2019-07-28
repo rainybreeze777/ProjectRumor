@@ -62,4 +62,14 @@ export default class RumorCatalogue {
     if (this._allEvents[eventUid] == undefined) { return undefined; }
     return this._allEvents[eventUid].getProgress();
   }
+
+  /**
+   * Get the progress of an event
+   * @param {uuid} eventUid - the uuid of event in question
+   * @return {Js object} Key: Rumor Quality; Value: Rumor Text
+   */
+  getRumorChoices(eventUid) {
+    if (this._allEvents[eventUid] == undefined) { return undefined; }
+    return this._allEvents[eventUid].getRumorChoiceTexts();
+  }
 }

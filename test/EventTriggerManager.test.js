@@ -7,6 +7,104 @@ import EventTriggerManager from '../EventTriggerManager.js';
 jest.mock('../DialogueFactory');
 jest.mock('../RumorCatalogue');
 
+describe("Test _objectIsSubSetOf", () => {
+
+  // Pass in two undefined as we don't need those
+  let manager = new EventTriggerManager();
+
+  test("Test all undefined", () => {
+    expect(manager._objectIsSubSetOf(undefined, undefined, [])).toBe(true);
+  });
+
+  test("Test one undefined", () => {
+    expect(manager._objectIsSubSetOf({ k: "v" }, undefined, [])).toBe(false);
+    expect(manager._objectIsSubSetOf(undefined, { k: "v" }, [])).toBe(false);
+  });
+
+  test("Test basic is subset", () => {
+    let subObj1 = {
+      k1: "v1"
+    };
+    let subObj2 = {
+      k1: "v1",
+      k2: "v2"
+    };
+    let superObj = {
+      k1: "v1",
+      k2: "v2",
+    };
+    expect(manager._objectIsSubSetOf(subObj1, superObj, [])).toBe(true);
+    expect(manager._objectIsSubSetOf(subObj2, superObj, [])).toBe(true);
+  });
+
+  test("Test basic is not subset", () => {
+    let subObj1 = {
+      k3: "v3"
+    };
+    let subObj2 = {
+      k1: "v2"
+    };
+    let subObj3 = {
+      k1: "v1",
+      k3: "v3"
+    };
+    let superObj = {
+      k1: "v1",
+      k2: "v2",
+    };
+    expect(manager._objectIsSubSetOf(subObj1, superObj, [])).toBe(false);
+    expect(manager._objectIsSubSetOf(subObj2, superObj, [])).toBe(false);
+    expect(manager._objectIsSubSetOf(subObj3, superObj, [])).toBe(false);
+  });
+
+  test("Test nested object", () => {
+    let subObj1 = {
+      k1: "v1",
+      nest1: {
+        nestK1: "nestV1"
+      }
+    };
+    let subObj2 = {
+      k1: "v1",
+      nest1: {
+        nestK2: "nestV2"
+      }
+    };
+    let superObj1 = {
+      k1: "v1",
+      k2: "v2",
+      nest1: {
+        nestK1: "nestV1"
+      }
+    };
+    let superObj2 = {
+      k1: "v1",
+      nest1: {
+        nestK1: "nestV1"
+      },
+      nest2: {
+        nestK2: "nestV2"
+      }
+    };
+    let superObj3 = {
+      k1: "v1",
+      k2: "v2",
+      nest1: {
+        nestK1: "nestV1",
+        nestK2: "nestV2"
+      }
+    };
+    expect(manager._objectIsSubSetOf(subObj1, superObj1, [])).toBe(true);
+    expect(manager._objectIsSubSetOf(subObj1, superObj2, [])).toBe(true);
+    expect(manager._objectIsSubSetOf(subObj1, superObj3, [])).toBe(true);
+
+    expect(manager._objectIsSubSetOf(subObj2, superObj1, [])).toBe(false);
+    expect(manager._objectIsSubSetOf(subObj2, superObj2, [])).toBe(false);
+    expect(manager._objectIsSubSetOf(subObj2, superObj3, [])).toBe(true);
+
+  });
+});
+
 describe("Test performedInteraction", () => {
 
   let mockGetTriggerableEvents = null;
