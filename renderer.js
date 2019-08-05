@@ -172,8 +172,16 @@ class Renderer {
             , this._currentConvId
             , actionTag
             , actionData);
-    this._currentConvId = nextConvId[0];
 
+    if (nextConvId.length == 0) {
+      this._changeUiDisplayState(undefined, "ROUTINE", () => {
+        $('.speaker').empty();
+        $('.dialogue').empty();
+      });
+      return;
+    }
+
+    this._currentConvId = nextConvId[0];
     this._changeUiDisplayState(
           undefined
           , "CONVERSATION"

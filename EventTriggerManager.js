@@ -25,7 +25,8 @@ export default class EventTriggerManager {
       {
         prereqId: 3,
         eventUid: "2",
-        convId: 1
+        convId: 1,
+        action: "CHAT"
       },
       {
         prereqId: 4,
