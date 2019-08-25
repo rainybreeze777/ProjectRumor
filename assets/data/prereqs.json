@@ -1,0 +1,99 @@
+[
+  {
+    "prereqId": 1,
+    "eventUid": "1",
+    "rumorProgress": 0
+  },
+  {
+    "prereqId": 2,
+    "eventUid": "1",
+    "rumorProgress": 1
+  },
+  {
+    "prereqId": 3,
+    "eventUid": "2",
+    "convId": 1,
+    "action": "CHAT"
+  },
+  {
+    "prereqId": 4,
+    "eventUid": "2",
+    "convId": 2,
+    "action": "SELL_GOODS"
+  },
+  {
+    "prereqId": 5,
+    "eventUid": "2",
+    "rumorProgress": 0
+  },
+  {
+    "prereqId": 6,
+    "eventUid": "2",
+    "convId": 4,
+    "action": "CHAT"
+  },
+  {
+    "prereqId": 7,
+    "eventUid": "2",
+    "convId": 4,
+    "action": "SELL_GOODS"
+  },
+  {
+    "prereqId": 8,
+    "eventUid": "2",
+    "convId": 5,
+    "action": "SPREAD_RUMOR",
+    "actionData": {
+      "rumorEventUid": "2",
+      "rumorProgressId": 0,
+      "rumorQuality": 0
+    }
+  },
+  {
+    "prereqId": 15,
+    "eventUid": "2",
+    "convId": 5
+  },
+  {
+    "prereqId": 9,
+    "eventUid": "2",
+    "rumorProgress": 1
+  },
+  {
+    "prereqId": 10,
+    "eventUid": "2",
+    "convId": 8,
+    "action": "SPREAD_RUMOR",
+    "actionData": {
+      "rumorEventUid": "2",
+      "rumorProgressId": 1,
+      "rumorQuality": 1
+    }
+  },
+  {
+    "prereqId": 11,
+    "eventUid": "2",
+    "convId": 8
+  },
+  {
+    "prereqId": 12,
+    "eventUid": "2",
+    "convId": 8,
+    "action": "SPREAD_RUMOR",
+    "actionData": {
+      "rumorEventUid": "2",
+      "rumorProgressId": 1,
+      "rumorQuality": 0
+    }
+  },
+  {
+    "prereqId": 13,
+    "eventUid": "2",
+    "convId": 9
+  },
+  {
+    "prereqId": 14,
+    "eventUid": "2",
+    "convId": 10
+  }
+]

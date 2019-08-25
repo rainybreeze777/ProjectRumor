@@ -231,7 +231,7 @@ describe("Test get Immediate conversations function", () => {
 
   test("One possible immediate with complex conditions", () => {
     expect(factory.getImmediateResponse(
-                    [9, 10], { eventUid: "2", finishedConvIdList: []}))
+                    [10, 11], { eventUid: "2", finishedConvIdList: []}))
     .toEqual([9]);
   });
 });
